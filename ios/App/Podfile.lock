@@ -1,0 +1,46 @@
+PODS:
+  - Capacitor (5.7.2):
+    - CapacitorCordova
+  - CapacitorClipboard (5.0.7):
+    - Capacitor
+  - CapacitorCordova (5.7.2)
+  - CapacitorPreferences (5.0.7):
+    - Capacitor
+  - CapacitorStatusBar (5.0.7):
+    - Capacitor
+  - CapacitorToast (5.0.7):
+    - Capacitor
+
+DEPENDENCIES:
+  - "Capacitor (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorClipboard (from `../../node_modules/@capacitor/clipboard`)"
+  - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
+  - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
+  - "CapacitorToast (from `../../node_modules/@capacitor/toast`)"
+
+EXTERNAL SOURCES:
+  Capacitor:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorClipboard:
+    :path: "../../node_modules/@capacitor/clipboard"
+  CapacitorCordova:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorPreferences:
+    :path: "../../node_modules/@capacitor/preferences"
+  CapacitorStatusBar:
+    :path: "../../node_modules/@capacitor/status-bar"
+  CapacitorToast:
+    :path: "../../node_modules/@capacitor/toast"
+
+SPEC CHECKSUMS:
+  Capacitor: fc7ef6d935eafb0df9eaaf109ca69be16c51a2d2
+  CapacitorClipboard: 45e5e25f2271f98712985d422776cdc5a779cca1
+  CapacitorCordova: 70b13b8fddb6f35d8adcfe06cb5045c07f35f6de
+  CapacitorPreferences: 77ac427e98db83bace772455f8ba447430382c4c
+  CapacitorStatusBar: f390fbb49b82ffb754ea4b3cf71dc8b048baf3e7
+  CapacitorToast: c8bb89eeb59a23c1fc298f138cc06c8ff4d90ac1
+
+PODFILE CHECKSUM: 5b51be1402a24d5ec8021e8c47b82bdba89acbf9
+
+COCOAPODS: 1.12.1

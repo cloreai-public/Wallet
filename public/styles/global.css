@@ -1,0 +1,512 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+html {
+  --ion-dynamic-font: var(--ion-default-dynamic-font);
+}
+
+* {
+  font-family: 'Inter', sans-serif !important;
+}
+
+:root {
+  --safe-area-top: env(safe-area-inset-top);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0);
+  --safe-area-left: env(safe-area-inset-left, 0);
+  --safe-area-right: env(safe-area-inset-right, 0);
+}
+
+body {
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+.unlock-modal {
+  --height: 210px;
+  --width: 380px;
+  padding-left: 10px;
+  padding-right: 10px;
+  /* background black with 50% opacity */
+  background: rgba(129, 128, 128, 0.65);
+  --border-radius: 10px;
+}
+
+.notice-modal {
+  --height: 450px;
+  --width: 400px;
+  padding: 20px;
+  /* background black with 50% opacity */
+  background: rgba(129, 128, 128, 0.65);
+  --border-radius: 10px;
+}
+
+.clore-card {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem; /* Equivalent to p-2 */
+  border-radius: 1rem; /* Equivalent to rounded-xl */
+  height: 100%;
+  justify-content: flex-end;
+  max-width: 28rem; /* Equivalent to max-w-[35rem] */
+  max-height: 38rem; /* Equivalent to max-h-[55rem] */
+}
+
+.ui-icon {
+  display: inline-block;
+
+  width: 1em;
+  height: 1em;
+
+  contain: strict;
+
+  fill: currentColor;
+
+  box-sizing: content-box !important;
+}
+
+.ui-icon .ionicon {
+  stroke: currentColor;
+}
+
+.ui-icon .ionicon-fill-none {
+  fill: none;
+}
+
+.ui-icon .ionicon-stroke-width {
+  stroke-width: 32px;
+  stroke-width: var(--ionicon-stroke-width, 32px);
+}
+
+.ui-icon .icon-inner,
+.ui-icon .ionicon,
+.ui-icon svg {
+  display: block;
+
+  height: 100%;
+  width: 100%;
+}
+
+/* loading logo */
+.loading-logo {
+  background-image: url('/loading.gif');
+}
+
+.settings-header {
+  top: 0.5rem;
+  right: 1rem;
+  position: absolute;
+}
+
+.logo-header {
+  top: 1.5rem;
+  left: 1.5rem;
+  position: absolute;
+}
+
+.sub-text {
+  font-size: 10px;
+  color: #767676;
+  padding-left: 3px;
+}
+
+.history-date-text {
+  font-size: 12px;
+  color: #767676;
+}
+/** Styles for React Toggle */
+
+.react-toggle {
+  touch-action: pan-x;
+
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  background-color: transparent;
+  border: 0;
+  padding: 0;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.react-toggle-screenreader-only {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.react-toggle--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  -webkit-transition: opacity 0.25s;
+  transition: opacity 0.25s;
+}
+
+.react-toggle-track {
+  width: 50px;
+  height: 24px;
+  padding: 0;
+  border-radius: 30px;
+  background-color: #4d4d4d;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.react-toggle:hover:not(.react-toggle--disabled) .react-toggle-track {
+  background-color: #000000;
+}
+
+.react-toggle--checked .react-toggle-track {
+  background-color: #19ab27;
+}
+
+.react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
+  background-color: #128d15;
+}
+
+.react-toggle-track-check {
+  position: absolute;
+  width: 14px;
+  height: 10px;
+  top: 0px;
+  bottom: 0px;
+  margin-top: auto;
+  margin-bottom: auto;
+  line-height: 0;
+  left: 8px;
+  opacity: 0;
+  -webkit-transition: opacity 0.25s ease;
+  -moz-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.react-toggle--checked .react-toggle-track-check {
+  opacity: 1;
+  -webkit-transition: opacity 0.25s ease;
+  -moz-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.react-toggle-track-x {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: 0px;
+  bottom: 0px;
+  margin-top: auto;
+  margin-bottom: auto;
+  line-height: 0;
+  right: 10px;
+  opacity: 1;
+  -webkit-transition: opacity 0.25s ease;
+  -moz-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.react-toggle--checked .react-toggle-track-x {
+  opacity: 0;
+}
+
+.react-toggle-thumb {
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #4d4d4d;
+  border-radius: 50%;
+  background-color: #fafafa;
+
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+
+  -webkit-transition: all 0.25s ease;
+  -moz-transition: all 0.25s ease;
+  transition: all 0.25s ease;
+}
+
+.react-toggle--checked .react-toggle-thumb {
+  left: 27px;
+  border-color: #19ab27;
+}
+
+.react-toggle--focus .react-toggle-thumb {
+  -webkit-box-shadow: 0px 0px 3px 2px #0099e0;
+  -moz-box-shadow: 0px 0px 3px 2px #0099e0;
+  box-shadow: 0px 0px 2px 3px #0099e0;
+}
+
+.react-toggle:active:not(.react-toggle--disabled) .react-toggle-thumb {
+  -webkit-box-shadow: 0px 0px 5px 5px #0099e0;
+  -moz-box-shadow: 0px 0px 5px 5px #0099e0;
+  box-shadow: 0px 0px 5px 5px #0099e0;
+}
+
+/* pluse */
+ion-tab-button {
+  position: relative;
+
+  &::before {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    content: '';
+    width: 100%;
+    height: 3px;
+  }
+
+  &.tab-selected::before {
+    background-color: var(--ion-color-primary);
+  }
+
+  &.tab-selected > span {
+    background-color: #f73636;
+  }
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  text-transform: none;
+  font-size: 18px;
+  width: 100%;
+  height: 56px;
+  border-radius: 8px;
+}
+
+.rotate {
+  animation: logo-rotate-animation 6s linear infinite forwards;
+}
+
+@keyframes logo-rotate-animation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+.ion-accordion-group.ion-accordion .ion-accordion-toggle-icon {
+  font-size: 10px;
+}
+
+input[type='radio']:after {
+  width: 15px;
+  height: 15px;
+  border-radius: 15px;
+  position: relative;
+  background-color: #1e1e1e;
+  content: '';
+  display: inline-block;
+  visibility: visible;
+  transition: 0.3s;
+  border: 2px solid white;
+  cursor: pointer;
+}
+
+input[type='radio']:checked:after {
+  width: 15px;
+  height: 15px;
+  border-radius: 15px;
+  position: relative;
+  background-color: #f73636;
+  content: '';
+  display: inline-block;
+  visibility: visible;
+  transition: 0.3s;
+  border: 2px solid white;
+  cursor: pointer;
+}
+
+ion-nav-link {
+  cursor: pointer;
+}
+
+/* Contacts list */
+
+ion-action-sheet.clore-action-sheet .action-sheet-group {
+  background: #4d4d4d;
+  color: #fff;
+}
+
+ion-action-sheet.clore-action-sheet .action-sheet-title {
+  color: #fff;
+  font-size: large;
+}
+
+ion-action-sheet.clore-action-sheet .action-sheet-cancel::after {
+  background: #4d4d4d;
+}
+
+ion-action-sheet.clore-action-sheet .action-sheet-button,
+ion-action-sheet.clore-action-sheet .action-sheet-button.ion-focused {
+  color: #fff;
+  background: #4d4d4d;
+  font-size: medium;
+}
+
+@media (any-hover: hover) {
+  ion-action-sheet.clore-action-sheet .action-sheet-button:hover {
+    color: #f73636;
+    background-color: #000000;
+  }
+}
+
+ion-action-sheet.clore-action-sheet ion-backdrop {
+  opacity: 0.6;
+}
+
+ion-button {
+  --background: #f73636;
+  --background-hover: #f73636;
+  --background-activated: #f73636;
+  --background-focused: #f73636;
+  --color: #eee;
+
+  --border-color: #f73636;
+  --border-style: solid;
+  --border-width: 1px;
+
+  --border-radius: 5px;
+
+  /* When rm THEN it will cap text... IDK prOgRAmmInG at its finest prob override smw */
+  --text-transform: capitalize;
+  text-transform: capitalize;
+
+  --box-shadow: 0 2px 6px 0 rgb(0, 0, 0, 0.25);
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+}
+
+ion-button.clore-poh-copy-button {
+  --background: #00000000;
+  --background-hover: #f7363637;
+  --color: #eee;
+
+  --border-style: none;
+  --border-width: 0px;
+}
+
+ion-button.header-copy-button {
+  --background: #00000000;
+  --background-hover: #f7363637;
+  --color: #eee;
+
+  --border-style: none;
+  --border-width: 0px;
+
+  --padding-top: 0px;
+  --padding-bottom: 0px;
+}
+
+.footer-button {
+  width: 10rem !important;
+  height: 2.5rem !important;
+}
+
+ion-button.clore-action-button-selector {
+  --background: #00000000;
+  --background-hover: #3c000064;
+  --color: #eee;
+  --color-hover: #eee;
+
+  --border-color: #f73636;
+  --border-style: solid;
+  --border-width: 1px;
+
+  max-width: 10rem !important;
+}
+
+ion-icon {
+  --color: #f73636;
+}
+
+ion-router-link {
+  --width: 100%;
+}
+
+/* Scroll bar */
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #f73636;
+  border-radius: 20px;
+  padding: 0 20px;
+}
+
+/* dashboard-page */
+.dashboard-page .has-focus .input-highlight.sc-ion-input-md {
+  display: none;
+}
+
+.dashboard-page .has-focus input {
+  color: white;
+}
+
+.dashboard-page .has-focus.sc-ion-input-md-h input.sc-ion-input-md {
+  caret-color: white;
+}
+
+/* Ionic custom modal */
+ion-modal#example-modal {
+  --width: fit-content;
+  --min-width: 250px;
+  --height: fit-content;
+  --border-radius: 6px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
+
+ion-modal#example-modal h1 {
+  margin: 20px 20px 10px 20px;
+}
+
+ion-modal#example-modal ion-icon {
+  margin-right: 6px;
+
+  width: 48px;
+  height: 48px;
+
+  padding: 4px 0;
+
+  color: #aaaaaa;
+}
+
+ion-modal#example-modal .wrapper {
+  margin-bottom: 10px;
+}

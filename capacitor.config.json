@@ -1,0 +1,23 @@
+{
+  "appId": "com.clore.app",
+  "appName": "Clore App",
+  "npmClient": "npm",
+  "webDir": "out",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3
+    }
+  },
+  "cordova": {},
+  "android": {
+    "icon": "public/icon.png"
+  },
+  "ios": {
+    "icon": "public/icon.icns",
+    "allowsLinkPreview": false,
+    "hideLogs": true
+  },
+  "mac": {
+    "icon": "public/icon.png"
+  }
+}

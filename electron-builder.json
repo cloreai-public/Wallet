@@ -1,0 +1,29 @@
+{
+  "appId": "com.cloreai.app",
+  "productName": "Clore Desktop App",
+  "publish": null,
+  "directories": {
+    "buildResources": "public",
+    "output": "release"
+  },
+  "files": ["out/**/*", "public/**/*", "electron/**/*"],
+  "nsis": {
+    "allowElevation": true,
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true
+  },
+  "linux": {
+    "target": ["deb", "appImage"],
+    "icon": "public/icon.png"
+  },
+  "win": {
+    "target": "nsis",
+    "icon": "public/favicon.ico"
+  },
+  "mac": {
+    "category": "public.app-category.utilities",
+    "icon": "public/icon.icns",
+    "target": ["dmg", "zip"],
+    "mergeASARs": false
+  }
+}

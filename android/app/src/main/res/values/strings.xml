@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Clore App</string>
+    <string name="title_activity_main">Clore App</string>
+    <string name="package_name">com.clore.app</string>
+    <string name="custom_url_scheme">com.clore.app</string>
+</resources>

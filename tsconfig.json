@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Next.js",
+  "_version": "2.0.0",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "baseUrl": "./",
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "allowJs": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "experimentalDecorators": true,
+    "declaration": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/**/*",
+    "public/**/*",
+    "out/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}
