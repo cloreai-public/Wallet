@@ -10,11 +10,13 @@
   },
   "cordova": {},
   "android": {
-    "icon": "public/icon.png"
+    "icon": "public/icon.png",
+    "zoomEnabled": false
   },
   "ios": {
     "icon": "public/icon.icns",
     "allowsLinkPreview": false,
+    "zoomEnabled": false,
     "hideLogs": true
   },
   "mac": {

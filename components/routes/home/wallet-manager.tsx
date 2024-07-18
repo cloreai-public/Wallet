@@ -122,6 +122,7 @@ const WalletManager = () => {
                 <IonRow>
                   <IonCol>
                     <IonInput
+                      mode="md"
                       fill="outline"
                       label={t('New Wallet Name')}
                       labelPlacement="floating"

@@ -59,6 +59,7 @@ const UnlockModal = (props: UnlockModalProps) => {
         </IonTitle>
         <IonItem>
           <IonInput
+            mode="md"
             label="Password"
             labelPlacement="stacked"
             ref={input}

@@ -98,6 +98,7 @@ const ContactsManager = () => {
                 <IonRow>
                   <IonCol>
                     <IonInput
+                      mode="md"
                       fill="outline"
                       label={t('Contact Name')}
                       labelPlacement="floating"
@@ -124,6 +125,7 @@ const ContactsManager = () => {
                 <IonRow>
                   <IonCol>
                     <IonInput
+                      mode="md"
                       fill="outline"
                       label={t('Contact Address')}
                       labelPlacement="floating"

@@ -186,6 +186,7 @@ function VerifyPhrase(props: IProps) {
         <IonRow>
           <IonCol className="px-0">
             <IonInput
+              mode="md"
               fill="outline"
               label={`#${verifyingWords[0] + 1}`}
               labelPlacement="stacked"
@@ -207,6 +208,7 @@ function VerifyPhrase(props: IProps) {
           </IonCol>
           <IonCol className="px-0 ml-4">
             <IonInput
+              mode="md"
               fill="outline"
               label={`#${verifyingWords[1] + 1}`}
               labelPlacement="stacked"
@@ -230,6 +232,7 @@ function VerifyPhrase(props: IProps) {
       </IonGrid>
       <div className="my-4">
         <IonInput
+          mode="md"
           fill="outline"
           label={t('Wallet Name')}
           labelPlacement="floating"
@@ -244,6 +247,7 @@ function VerifyPhrase(props: IProps) {
       </div>
       <div>
         <IonInput
+          mode="md"
           fill="outline"
           label={t('Create Password')}
           labelPlacement="floating"
@@ -258,6 +262,7 @@ function VerifyPhrase(props: IProps) {
       </div>
       <div className="my-4">
         <IonInput
+          mode="md"
           fill="outline"
           label={t('Confirm Password')}
           labelPlacement="floating"
