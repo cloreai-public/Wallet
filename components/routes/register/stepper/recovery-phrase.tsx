@@ -82,13 +82,14 @@ function RecoveryPhrase(props: IProps) {
   return (
     <div className="w-full flex flex-col items-stretch justify-between h-full">
       {recover ? (
-        <div className="my-4">
+        <div className="my-3">
           <IonTextarea
-            style={{ fontSize: '20px' }}
-            className="px-[25px]"
+            mode="md"
+            style={{ fontSize: '18px' }}
+            className="px-[5px]"
             label={t('12-Word Mnemonic')}
             labelPlacement="floating"
-            rows={3}
+            rows={5}
             fill="outline"
             placeholder="Enter 12-Word Mnemonic Phrase"
             onIonChange={(e: Event) => {
@@ -131,7 +132,7 @@ function RecoveryPhrase(props: IProps) {
             {t('DO NOT share your recovery phrase with ANYONE.')}
           </span>
         </span>
-        <span className="font-thin">
+        <span className="font-thin my-1">
           {t('Please stay vigilant against phishing attacks at all times.')}
         </span>
       </div>

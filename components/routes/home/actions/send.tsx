@@ -134,6 +134,7 @@ const Send = () => {
                 <IonRow>
                   <IonCol className="ion-padding-vertical">
                     <IonInput
+                      mode="md"
                       fill="outline"
                       label={`${t('Address')} ${addressLabel}`}
                       labelPlacement="floating"
@@ -161,6 +162,7 @@ const Send = () => {
                 <IonRow>
                   <IonCol>
                     <IonInput
+                      mode="md"
                       fill="outline"
                       label={t('Amount')}
                       labelPlacement="floating"

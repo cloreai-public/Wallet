@@ -96,6 +96,7 @@ const PoH = () => {
                 <IonRow>
                   <IonCol className="ion-padding-vertical">
                     <IonInput
+                      mode="md"
                       fill="outline"
                       label={`${t('Address')} (${activeWallet.name})`}
                       labelPlacement="floating"
@@ -122,6 +123,7 @@ const PoH = () => {
                 <IonRow>
                   <IonCol>
                     <IonTextarea
+                      mode="md"
                       fill="outline"
                       label={t('Message (Required)')}
                       labelPlacement="floating"
@@ -151,6 +153,7 @@ const PoH = () => {
                 <IonRow>
                   <IonCol>
                     <IonTextarea
+                      mode="md"
                       fill="outline"
                       label={t('Signature')}
                       labelPlacement="floating"

@@ -27,6 +27,7 @@ WALLETS_DEBUG_TEST
 # misc
 .DS_Store
 *.pem
+clore-wallet.code-workspace
 
 # debug
 npm-debug.log*
