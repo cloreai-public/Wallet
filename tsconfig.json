@@ -34,7 +34,8 @@
     ".next/types/**/*.ts",
     "src/**/*",
     "public/**/*",
-    "out/types/**/*.ts"
+    "out/types/**/*.ts",
+    "electron-api.d.ts"
   ],
   "exclude": ["node_modules"]
 }

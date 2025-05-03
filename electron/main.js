@@ -1,23 +1,27 @@
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron/main');
 const serve = require('electron-serve');
 const path = require('path');
+const axios = require('axios');
 
 const appServe = app.isPackaged
-  ? serve({
-      directory: path.join(__dirname, '..', 'out'),
-    })
+  ? serve({ directory: path.join(__dirname, '..', 'out') })
   : null;
 
+console.log('[DEBUG] isPackaged:', app.isPackaged);
+
 const createWindow = () => {
+  console.log('[PRELOAD PATH]', path.join(__dirname, 'preload.js'));
   const win = new BrowserWindow({
     icon: path.join(__dirname, 'out/icon.png'),
     width: 575,
     height: 700,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      devTools: !app.isPackaged,
+      contextIsolation: true,
+      nodeIntegration: false,
     },
   });
+  win.webContents.openDevTools(); // force open DevTools
 
   if (app.isPackaged) {
     appServe(win).then(() => {
@@ -26,41 +30,57 @@ const createWindow = () => {
 
     // disable developer tools
     const menu = Menu.getApplicationMenu();
-    const viewMenuIndex = menu.items.findIndex((menuItem) => menuItem.role === 'viewmenu');
-    const viewMenuItems = menu.items[viewMenuIndex].submenu.items;
-    for (const viewMenuItem of viewMenuItems) {
-      if (viewMenuItem.role === 'toggledevtools') {
-        viewMenuItem.enabled = false;
-        viewMenuItem.visible = false;
-        break;
+    const viewMenuIndex = menu.items.findIndex(m => m.role === 'viewmenu');
+    const viewMenuItems = menu.items[viewMenuIndex]?.submenu?.items || [];
+    for (const item of viewMenuItems) {
+      if (item.role === 'toggledevtools') {
+        item.enabled = false;
+        item.visible = false;
       }
     }
-
   } else {
     win.loadURL('http://localhost:3000');
-    win.webContents.on('did-fail-load', (e, code, desc) => {
+    win.webContents.on('did-fail-load', () => {
       win.webContents.reloadIgnoringCache();
     });
   }
 };
 
-app.on('ready', () => {
+app.whenReady().then(() => {
+  ipcMain.handle('getStakingStatus', async () => {
+    console.log('[MAIN] Received getStakingStatus call');
+    try {
+      const response = await axios.post('http://155.138.230.177:4568/', {
+        jsonrpc: '1.0',
+        id: 'wallet',
+        method: 'getstakingstatus',
+        params: [],
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Basic ' + Buffer.from('abc:abc').toString('base64'),
+        }
+      });
+
+      console.log('[MAIN] RPC result:', response.data.result);
+      return response.data.result;
+    } catch (error) {
+      console.error('[MAIN] RPC error:', error);
+      return null;
+    }
+  });
   createWindow();
-});
+})
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  if (process.platform !== 'darwin') app.quit();
 });
 
-app.on('web-contents-created', (event, contents) => {
-  contents.on('will-navigate', (event, navigationUrl) => {
-    const parsedUrl = new URL(navigationUrl);
-    // console.log('parsedUrl.origin', parsedUrl.origin);
-    if (app.isPackaged)
-      if (parsedUrl.origin != 'clore-app://-') {
-        event.preventDefault();
-      }
+app.on('web-contents-created', (_, contents) => {
+  contents.on('will-navigate', (event, url) => {
+    if (app.isPackaged && new URL(url).origin !== 'clore-app://-') {
+      event.preventDefault();
+    }
   });
 });
+
