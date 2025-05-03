@@ -22,19 +22,20 @@ const CreateMethod = () => {
 
   return (
     <>
-      <IonHeader>
+      <IonHeader
+        style={{ position: 'fixed', top: 0, width: '100%', zIndex: 10000 }}
+      >
         <IonToolbar>
           <IonTitle className="text-[20px]">Clore {t('Wallet')}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="max-w-[1500px]">
         <div className="h-full flex flex-col justify-center items-center bg-ani bg-bottom bg-no-repeat bg-contain">
-          <IonCard className="p-2 rounded-lg">
+          <IonCard className="p-2 rounded-lg welcome-card">
             <IonCardHeader>
               <IonCardTitle className="text-lg">{t('Welcome')}</IonCardTitle>
             </IonCardHeader>
             <IonCardContent className="flex flex-col">
-              <p>{t('Create a new wallet or Recovery an existing wallet')}</p>
               <IonButton
                 routerDirection="forward"
                 onClick={() => {
@@ -46,18 +47,17 @@ const CreateMethod = () => {
                 {t('Create a new wallet')}
                 <IonRippleEffect className="opacity-50" />
               </IonButton>
-              <IonNavLink
+              <IonButton
                 routerDirection="forward"
                 onClick={() => {
-                  router.push(EndPoints.create.recover);
+                  router.push(EndPoints.create.new + '?recover=true');
                 }}
-                className="w-full"
+                className="w-full my-4"
+                style={{ fontSize: '18px' }}
               >
-                <div className="ion-activatable btn  border">
-                  {t('Recover an existing wallet')}
-                  <IonRippleEffect className="opacity-50" />
-                </div>
-              </IonNavLink>
+                {t('Recover a wallet')}
+                <IonRippleEffect className="opacity-50" />
+              </IonButton>
             </IonCardContent>
           </IonCard>
         </div>

@@ -16,7 +16,7 @@ function FinishAccount() {
   return (
     <div className="flex flex-col py-1">
       <div className="flex flex-col justify-center items-center">
-        <Image src={LogoSvg} alt="cosmos" sizes="190" className="my-12" />
+        <Image src={LogoSvg} alt="cosmos" className="my-12 finish-logo" />
         <h1>{t('Welcome Clore Network')}</h1>
       </div>
       <IonButton onClick={handleFinish} id="submit" className="my-4">

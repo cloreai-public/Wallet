@@ -16,6 +16,7 @@ import WalletManager from 'components/routes/home/wallet-manager';
 import LoadingScreen from 'components/routes/loading-screen';
 import { EndPoints } from './config';
 import 'components/hooks/use-i18n';
+import Pos from 'components/routes/home/pos';
 
 setupIonicReact();
 
@@ -34,6 +35,7 @@ const AppShell = () => (
             <Route path="/history" component={History} />
             <Route path="/send" component={Send} />
             <Route path="/poh" component={PoH} />
+            <Route path="/pos" component={Pos} />
             <Route path="/walletsManager" component={WalletManager} />
           </IonRouterOutlet>
           <Switch>

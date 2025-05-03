@@ -28,7 +28,7 @@ function RecoveryPhrase(props: IProps) {
   // watching mnemonic to reset providedMnemonic
   useEffect(() => {
     setProvidedMnemonic('');
-  },[mnemonic]);
+  }, [mnemonic]);
 
   const writeToClipboard = async () => {
     await Clipboard.write({
@@ -65,7 +65,7 @@ function RecoveryPhrase(props: IProps) {
       recover &&
       (!providedMnemonic ||
         (providedMnemonic.split(' ').length !== 12 &&
-        providedMnemonic.split(' ')[0].length > 2))
+          providedMnemonic.split(' ')[0].length > 2))
     ) {
       showToast(
         t('Invalid Mnemonic'),
@@ -80,16 +80,16 @@ function RecoveryPhrase(props: IProps) {
   };
 
   return (
-    <div className="w-full flex flex-col items-stretch justify-between h-full">
+    <div className="w-full flex flex-col items-stretch justify-between">
       {recover ? (
         <div className="my-3">
           <IonTextarea
             mode="md"
-            style={{ fontSize: '18px' }}
-            className="px-[5px]"
+            style={{ fontSize: '22px' }}
+            className="px-[5px] mb-2"
             label={t('12-Word Mnemonic')}
             labelPlacement="floating"
-            rows={5}
+            rows={4}
             fill="outline"
             placeholder="Enter 12-Word Mnemonic Phrase"
             onIonChange={(e: Event) => {
@@ -99,23 +99,34 @@ function RecoveryPhrase(props: IProps) {
           />
         </div>
       ) : (
-        <div className="mt-4">
+        <div
+          className="mt-4"
+          style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
+        >
           {Array.from({ length: 12 }).map((_, j) => (
-            <IonChip key={j} style={{ cursor: 'none' }}>
-              {j + 1}.&nbsp;{mnemonic[j]}
+            <IonChip
+              key={j}
+              style={{
+                flexBasis: 'calc(33% - 13px)',
+                justifyContent: 'center',
+                cursor: 'none',
+              }}
+            >
+              {mnemonic[j]}
             </IonChip>
           ))}
         </div>
       )}
 
-      {!recover ? (
+      {!recover && (
         <div className="flex justify-center items-center">
           <div
-            className=" flex justify-center items-center my-4 text-[#f73636] cursor-pointer hover:cursor-pointer hover:scale-110 transition active:scale-90"
+            className=" flex justify-center items-center my-4 text-[#ff3d3d] cursor-pointer hover:cursor-pointer hover:scale-110 transition active:scale-90"
+            style={{ height: '5em' }}
             onClick={writeToClipboard}
           >
             <span className="text-lg  font-bold">{t('Copy to clipboard')}</span>
-            <div className="flex justify-center items-center border-[#f73636] text-base ml-2 ion-button hover:cursor-pointer hover:scale-110 transition active:scale-90">
+            <div className="flex justify-center items-center border-[#ff3d3d] text-base ml-2 ion-button hover:cursor-pointer hover:scale-110 transition active:scale-90">
               <IonIcon
                 icon={documentsOutline}
                 className="mr-1 text-lg min-w-7"
@@ -124,17 +135,18 @@ function RecoveryPhrase(props: IProps) {
             </div>
           </div>
         </div>
-      ) : null}
+      )}
+
       <div className="text-gray-100 flex flex-col gap-1">
-        <span className="text-[#f73636] text-sm md:text-base font-bold flex items-start">
+        <span className="text-[#ff3d3d] text-sm md:text-base font-bold flex items-start">
           <IonIcon icon={warning} className="mr-1 text-lg pt-[2px] min-w-7" />
           <span className="flex-shrink">
             {t('DO NOT share your recovery phrase with ANYONE.')}
           </span>
         </span>
-        <span className="font-thin my-1">
+        {/* <span className="my-1">
           {t('Please stay vigilant against phishing attacks at all times.')}
-        </span>
+        </span> */}
       </div>
       <IonButton className="my-4" onClick={handleNextClick}>
         {t('Next')}

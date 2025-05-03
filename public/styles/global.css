@@ -21,10 +21,6 @@ body {
   width: 100vw;
 }
 
-ion-content::part(scroll) {
-  padding-bottom: 0 !important;
-}
-
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -34,7 +30,7 @@ input[type='number']::-webkit-outer-spin-button {
 }
 
 .unlock-modal {
-  --height: 210px;
+  --height: 250px;
   --width: 380px;
   padding-left: 10px;
   padding-right: 10px;
@@ -47,9 +43,13 @@ input[type='number']::-webkit-outer-spin-button {
   --height: 450px;
   --width: 400px;
   padding: 20px;
-  /* background black with 50% opacity */
-  background: rgba(129, 128, 128, 0.65);
+  /* Adjust background to avoid affecting the header */
+  background: rgba(0, 0, 0, 1);
+  --ion-background-color: rgba(31, 31, 31, 255);
   --border-radius: 10px;
+  z-index: 9999; /* Ensure it stays below the header */
+  position: fixed;
+  top: 56px; /* Push the modal content below the header */
 }
 
 .clore-card {
@@ -127,7 +127,6 @@ input[type='number']::-webkit-outer-spin-button {
   font-size: 12px;
   color: #767676;
 }
-/** Styles for React Toggle */
 
 .react-toggle {
   touch-action: pan-x;
@@ -290,7 +289,7 @@ ion-tab-button {
   }
 
   &.tab-selected > span {
-    background-color: #f73636;
+    background-color: #ff3d3d;
   }
 }
 
@@ -345,7 +344,7 @@ input[type='radio']:checked:after {
   height: 15px;
   border-radius: 15px;
   position: relative;
-  background-color: #f73636;
+  background-color: #ff3d3d;
   content: '';
   display: inline-block;
   visibility: visible;
@@ -356,6 +355,7 @@ input[type='radio']:checked:after {
 
 ion-nav-link {
   cursor: pointer;
+  color: white;
 }
 
 /* Contacts list */
@@ -383,7 +383,7 @@ ion-action-sheet.clore-action-sheet .action-sheet-button.ion-focused {
 
 @media (any-hover: hover) {
   ion-action-sheet.clore-action-sheet .action-sheet-button:hover {
-    color: #f73636;
+    color: #ff3d3d;
     background-color: #000000;
   }
 }
@@ -392,18 +392,26 @@ ion-action-sheet.clore-action-sheet ion-backdrop {
   opacity: 0.6;
 }
 
+.border {
+  border-radius: 60px;
+}
+
+.border:hover {
+  border-color: #ff3d3d;
+}
+
 ion-button {
-  --background: #f73636;
-  --background-hover: #f73636;
-  --background-activated: #f73636;
-  --background-focused: #f73636;
+  --background: rgba(31, 31, 31, 255);
+  --background-hover: rgba(31, 31, 31, 255);
+  --background-activated: rgba(31, 31, 31, 255);
+  --background-focused: rgba(31, 31, 31, 255);
   --color: #eee;
 
-  --border-color: #f73636;
+  --border-color: #eee;
   --border-style: solid;
   --border-width: 1px;
 
-  --border-radius: 5px;
+  --border-radius: 60px;
 
   /* When rm THEN it will cap text... IDK prOgRAmmInG at its finest prob override smw */
   --text-transform: capitalize;
@@ -412,20 +420,35 @@ ion-button {
   --box-shadow: 0 2px 6px 0 rgb(0, 0, 0, 0.25);
   --padding-top: 8px;
   --padding-bottom: 8px;
+  height: 3rem;
+}
+
+ion-button::part(native) {
+  height: 3rem;
+}
+
+ion-button::part(native):hover {
+  border-color: #ff3d3d;
+  color: #eee;
 }
 
 ion-button.clore-poh-copy-button {
   --background: #00000000;
-  --background-hover: #f7363637;
+  --background-hover: #ff3d3d37;
   --color: #eee;
 
   --border-style: none;
   --border-width: 0px;
 }
 
+ion-buttons {
+  height: 3rem;
+  width: 3rem;
+}
+
 ion-button.header-copy-button {
   --background: #00000000;
-  --background-hover: #f7363637;
+  --background-hover: #ff3d3d37;
   --color: #eee;
 
   --border-style: none;
@@ -437,7 +460,7 @@ ion-button.header-copy-button {
 
 .footer-button {
   width: 10rem !important;
-  height: 2.5rem !important;
+  height: 3rem !important;
 }
 
 ion-button.clore-action-button-selector {
@@ -446,15 +469,27 @@ ion-button.clore-action-button-selector {
   --color: #eee;
   --color-hover: #eee;
 
-  --border-color: #f73636;
+  --border-color: #ff3d3d;
   --border-style: solid;
   --border-width: 1px;
 
   max-width: 10rem !important;
 }
 
+#settings-popover {
+  width: 3rem;
+  padding: 10px;
+}
+
+.welcome-card {
+  display: grid;
+  place-items: center;
+  height: 19em;
+  width: 25em;
+}
+
 ion-icon {
-  --color: #f73636;
+  --color: #ff3d3d;
 }
 
 ion-router-link {
@@ -469,7 +504,7 @@ ion-router-link {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #f73636;
+  background-color: #ff3d3d;
   border-radius: 20px;
   padding: 0 20px;
 }
@@ -485,6 +520,28 @@ ion-router-link {
 
 .dashboard-page .has-focus.sc-ion-input-md-h input.sc-ion-input-md {
   caret-color: white;
+}
+
+.input-fill-outline.input-label-placement-stacked.sc-ion-input-md-h
+  input.sc-ion-input-md,
+.input-fill-outline.input-label-placement-floating.sc-ion-input-md-h
+  input.sc-ion-input-md {
+  height: 3rem;
+  font-size: large;
+  color: #dbdbdb;
+  --placeholder-color: #dbdbdbd;
+  --placeholder-opacity: 0.75;
+}
+
+.sc-ion-textarea-md-h {
+  color: #dbdbdb;
+  --placeholder-color: #dbdbdb;
+  --placeholder-opacity: 0.75;
+}
+
+.text-2xl,
+.text-4xl {
+  color: #dbdbdb;
 }
 
 /* Ionic custom modal */
@@ -513,4 +570,8 @@ ion-modal#example-modal ion-icon {
 
 ion-modal#example-modal .wrapper {
   margin-bottom: 10px;
+}
+
+ion-loading {
+  background-color: black;
 }

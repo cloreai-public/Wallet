@@ -14,6 +14,7 @@ export async function generateStaticParams() {
     { all: ['send'] },
     { all: ['sign'] },
     { all: ['poh'] },
+    { all: ['pos'] },
     // unauthenticate
     { all: ['register'] },
     { all: ['check'] },

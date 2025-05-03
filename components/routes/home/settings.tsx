@@ -60,7 +60,7 @@ const Settings = () => {
         router.push(EndPoints.register);
       }, 2000);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 

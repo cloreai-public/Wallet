@@ -3,7 +3,7 @@ export class Validation {
     const upperCasePattern = /[A-Z]/g;
     const lowerCasePattern = /[a-z]/g;
     const numberPattern = /\d/g;
-    const symbolPattern = /[!@#$%^&*(),.?":{}|<>]/g;
+    const symbolPattern = /[!@#$%^&*()_\-+=\[\]{};:'",.<>\/?\\|`~]/g;
 
     const upperCaseMatches = password.match(upperCasePattern);
     const lowerCaseMatches = password.match(lowerCasePattern);
@@ -37,14 +37,10 @@ export class Validation {
     if (validAddress.test(address)) return { error: false, message: '' };
     else return { error: true, message: 'Invalid Address' };
   }
-}
 
-const getDateTime = (date: number) => {
-  return new Date(date * 1000).toLocaleDateString('en-US', {
-    year: 'numeric', // "2024"
-    month: 'short', // "Jan"
-    day: 'numeric', // "20"
-    hour: 'numeric', // "11"
-    minute: 'numeric', // "59"
-  });
-};
+  isName(name: string) {
+    if (name.length >= 3 && name.length <= 10)
+      return { error: false, message: '' };
+    else return { error: true, message: 'Name must be 3-10 characters long' };
+  }
+}

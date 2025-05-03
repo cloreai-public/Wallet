@@ -122,12 +122,11 @@ const PoH = () => {
               <IonGrid>
                 <IonRow>
                   <IonCol>
-                    <IonTextarea
+                    <IonInput
                       mode="md"
                       fill="outline"
                       label={t('Message (Required)')}
                       labelPlacement="floating"
-                      rows={5}
                       value={sendMemo}
                       onIonChange={(e: Event) =>
                         setSendMemo((e.target as HTMLInputElement).value)
@@ -143,7 +142,7 @@ const PoH = () => {
                       >
                         <IonIcon icon={copySharp} aria-hidden="true"></IonIcon>
                       </IonButton>
-                    </IonTextarea>
+                    </IonInput>
                   </IonCol>
                 </IonRow>
               </IonGrid>
@@ -152,12 +151,11 @@ const PoH = () => {
               <IonGrid>
                 <IonRow>
                   <IonCol>
-                    <IonTextarea
+                    <IonInput
                       mode="md"
                       fill="outline"
                       label={t('Signature')}
                       labelPlacement="floating"
-                      rows={3}
                       value={signature}
                       onIonChange={(e: Event) =>
                         setSignature((e.target as HTMLInputElement).value)
@@ -173,7 +171,7 @@ const PoH = () => {
                       >
                         <IonIcon icon={copySharp} aria-hidden="true"></IonIcon>
                       </IonButton>
-                    </IonTextarea>
+                    </IonInput>
                   </IonCol>
                 </IonRow>
               </IonGrid>

@@ -56,7 +56,7 @@ const AuthProvider = ({ children }: Props) => {
           }
         }
       } catch (e) {
-        console.log(e);
+        // console.log(e);
       }
     }
     if (wallets.length > 0) updateWallets(wallets);
@@ -89,7 +89,11 @@ const AuthProvider = ({ children }: Props) => {
             const state = JSON.parse(s);
             // console.log('Found State');
 
-            if (state.encryptedMnemonic && state.encryptedPassword && state.wallets) {
+            if (
+              state.encryptedMnemonic &&
+              state.encryptedPassword &&
+              state.wallets
+            ) {
               // Restore state
               // console.log('Restoring...');
               i18n.changeLanguage(state.language);
@@ -101,7 +105,7 @@ const AuthProvider = ({ children }: Props) => {
           }
         })
         .catch(e => {
-          console.log(e);
+          // console.log(e);
         });
     } else {
       // console.log('Authenticated');

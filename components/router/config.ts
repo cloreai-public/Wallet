@@ -14,6 +14,7 @@ export const EndPoints = Object({
     history: '/history',
     send: '/send',
     poh: '/poh',
+    pos: '/pos'
   },
 });
 

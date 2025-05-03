@@ -65,10 +65,9 @@ export const languages = {
       'Select a wallet': 'Select a wallet',
       Wallet: 'Wallet',
       Welcome: 'Welcome',
-      'Create a new wallet or Recovery an existing wallet':
-        'Create a new wallet or Recovery an existing wallet',
+      'or Recovery an existing wallet': 'or Recovery an existing wallet',
       'Create a new wallet': 'Create a new wallet',
-      'Recover an existing wallet': 'Recover an existing wallet',
+      'Recover a wallet': 'Recover A Wallet',
       'New Recovery Phrase': 'New Recovery Phrase',
       'Wallet Created': 'Wallet Created',
       'Store your recovery phrase in a safe & secure place':
@@ -162,10 +161,8 @@ export const languages = {
       'Select a wallet': 'Seleccione una cartera',
       Wallet: 'Cartera',
       Welcome: 'Bienvenido',
-      'Create a new wallet or Recover an existing wallet':
-        'Crear una nueva cartera o Recuperar una existente',
       'Create a new wallet': 'Crear una nueva cartera',
-      'Recover an existing wallet': 'Recuperar una cartera existente',
+      'Recover a wallet': 'Recuperar una cartera existente',
       'New Recovery Phrase': 'Nueva Frase de Recuperación',
       'Wallet Created': 'Cartera Creada',
       'Store your recovery phrase in a safe & secure place':
@@ -258,10 +255,8 @@ export const languages = {
       'Select a wallet': 'Выберите кошелек',
       Wallet: 'Кошелек',
       Welcome: 'Добро пожаловать',
-      'Create a new wallet or Recover an existing wallet':
-        'Создать новый кошелек или восстановить существующий',
       'Create a new wallet': 'Создать новый кошелек',
-      'Recover an existing wallet': 'Восстановить существующий кошелек',
+      'Recover a wallet': 'Восстановить существующий кошелек',
       'New Recovery Phrase': 'Новая Фраза Восстановления',
       'Wallet Created': 'Кошелек Создан',
       'Store your recovery phrase in a safe & secure place':
@@ -352,10 +347,8 @@ export const languages = {
       'Select a wallet': '选择一个钱包',
       Wallet: '钱包',
       Welcome: '欢迎',
-      'Create a new wallet or Recover an existing wallet':
-        '创建新钱包或恢复现有钱包',
       'Create a new wallet': '创建新钱包',
-      'Recover an existing wallet': '恢复现有钱包',
+      'Recover a wallet': '恢复现有钱包',
       'New Recovery Phrase': '新恢复短语',
       'Wallet Created': '钱包已创建',
       'Store your recovery phrase in a safe & secure place':
@@ -446,10 +439,8 @@ export const languages = {
       'Select a wallet': 'Bir cüzdan seç',
       Wallet: 'Cüzdan',
       Welcome: 'Hoşgeldiniz',
-      'Create a new wallet or Recover an existing wallet':
-        'Yeni bir cüzdan oluşturun veya mevcut bir cüzdanı kurtarın',
       'Create a new wallet': 'Yeni bir cüzdan oluştur',
-      'Recover an existing wallet': 'Mevcut bir cüzdanı kurtar',
+      'Recover a wallet': 'Mevcut bir cüzdanı kurtar',
       'New Recovery Phrase': 'Yeni Kurtarma İfadesi',
       'Wallet Created': 'Cüzdan Oluşturuldu',
       'Store your recovery phrase in a safe & secure place':

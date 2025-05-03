@@ -104,7 +104,7 @@ const ContactsManager = () => {
                       labelPlacement="floating"
                       type="text"
                       value={name}
-                      onIonChange={(e: Event) =>{
+                      onIonChange={(e: Event) => {
                         setName((e.target as HTMLInputElement).value);
                       }}
                       onIonInput={(e: Event) => {
@@ -112,7 +112,7 @@ const ContactsManager = () => {
                       }}
                     />
                     {nameError ? (
-                      <div className="text-red-700 font-bold text-xs">
+                      <div className="text-[#ff3d3d] font-bold text-xs">
                         {nameError || 'Contact Name Is Required'}
                       </div>
                     ) : null}
@@ -133,14 +133,13 @@ const ContactsManager = () => {
                       value={address}
                       onIonChange={(e: Event) => {
                         setAddress((e.target as HTMLInputElement).value);
-                      }
-                      }
+                      }}
                       onIonInput={(e: Event) => {
                         setAddressError('');
                       }}
                     />
                     {addressError ? (
-                      <div className="text-red-700 font-bold text-xs">
+                      <div className="text-[#ff3d3d] font-bold text-xs">
                         {addressError || 'Address Is Required'}
                       </div>
                     ) : null}

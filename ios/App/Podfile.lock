@@ -1,17 +1,25 @@
 PODS:
-  - Capacitor (5.7.2):
+  - AparajitaCapacitorBiometricAuth (8.0.2):
+    - Capacitor
+  - AparajitaCapacitorSecureStorage (6.0.1):
+    - Capacitor
+    - KeychainSwift (~> 21.0)
+  - Capacitor (6.1.2):
     - CapacitorCordova
-  - CapacitorClipboard (5.0.7):
+  - CapacitorClipboard (6.0.1):
     - Capacitor
-  - CapacitorCordova (5.7.2)
-  - CapacitorPreferences (5.0.7):
+  - CapacitorCordova (6.1.2)
+  - CapacitorPreferences (6.0.2):
     - Capacitor
-  - CapacitorStatusBar (5.0.7):
+  - CapacitorStatusBar (6.0.1):
     - Capacitor
-  - CapacitorToast (5.0.7):
+  - CapacitorToast (6.0.2):
     - Capacitor
+  - KeychainSwift (21.0.0)
 
 DEPENDENCIES:
+  - "AparajitaCapacitorBiometricAuth (from `../../node_modules/@aparajita/capacitor-biometric-auth`)"
+  - "AparajitaCapacitorSecureStorage (from `../../node_modules/@aparajita/capacitor-secure-storage`)"
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorClipboard (from `../../node_modules/@capacitor/clipboard`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
@@ -19,7 +27,15 @@ DEPENDENCIES:
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "CapacitorToast (from `../../node_modules/@capacitor/toast`)"
 
+SPEC REPOS:
+  trunk:
+    - KeychainSwift
+
 EXTERNAL SOURCES:
+  AparajitaCapacitorBiometricAuth:
+    :path: "../../node_modules/@aparajita/capacitor-biometric-auth"
+  AparajitaCapacitorSecureStorage:
+    :path: "../../node_modules/@aparajita/capacitor-secure-storage"
   Capacitor:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorClipboard:
@@ -34,13 +50,16 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/toast"
 
 SPEC CHECKSUMS:
-  Capacitor: fc7ef6d935eafb0df9eaaf109ca69be16c51a2d2
-  CapacitorClipboard: 45e5e25f2271f98712985d422776cdc5a779cca1
-  CapacitorCordova: 70b13b8fddb6f35d8adcfe06cb5045c07f35f6de
-  CapacitorPreferences: 77ac427e98db83bace772455f8ba447430382c4c
-  CapacitorStatusBar: f390fbb49b82ffb754ea4b3cf71dc8b048baf3e7
-  CapacitorToast: c8bb89eeb59a23c1fc298f138cc06c8ff4d90ac1
+  AparajitaCapacitorBiometricAuth: 3057403ee3e9e390e57bfb92b576f439157951b8
+  AparajitaCapacitorSecureStorage: 265982fd6a2686f9a0820f55c039623b2c4a34c1
+  Capacitor: 679f9673fdf30597493a6362a5d5bf233d46abc2
+  CapacitorClipboard: 756cd7e83e8d5d19b0c74f40b57517c287bd5fe2
+  CapacitorCordova: f48c89f96c319101cd2f0ce8a2b7449b5fb8b3dd
+  CapacitorPreferences: e8284bf740cf8c6d3f25409af3c01df87dfeb5a1
+  CapacitorStatusBar: b81d4fb5d4e0064c712018071b3ab4b810b39a63
+  CapacitorToast: cfd82cd5afdc3f027ad4a8859f909ae4a327f3c3
+  KeychainSwift: 4a71a45c802fd9e73906457c2dcbdbdc06c9419d
 
-PODFILE CHECKSUM: 5b51be1402a24d5ec8021e8c47b82bdba89acbf9
+PODFILE CHECKSUM: 3cf4ef8b1806cfaa2615babe467cd5a96339769f
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.15.2

@@ -32,7 +32,9 @@ const WalletManager = () => {
 
   const addNewWallet = async (password: string) => {
     if (walletName) {
-      const walletsWithName = wallets.filter((w: Wallet) => w.name == walletName);
+      const walletsWithName = wallets.filter(
+        (w: Wallet) => w.name == walletName,
+      );
 
       if (walletsWithName.length > 0) {
         setError(`${walletName} Already In Use`);
@@ -133,7 +135,7 @@ const WalletManager = () => {
                       }
                     />
                     {error ? (
-                      <div className="text-red-700 font-bold text-xs">
+                      <div className="text-[#ff3d3d] font-bold text-xs">
                         {error || 'Wallet Name Is Required'}
                       </div>
                     ) : null}

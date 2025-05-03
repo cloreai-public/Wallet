@@ -99,7 +99,7 @@ const Send = () => {
 
       router.push(EndPoints.auth.dashboard);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -146,7 +146,7 @@ const Send = () => {
                       }}
                     />
                     {error ? (
-                      <div className="text-red-700 font-bold text-xs">
+                      <div className="text-[#ff3d3d] font-bold text-xs">
                         {error || t('Address Is Required')}
                       </div>
                     ) : null}
@@ -173,14 +173,14 @@ const Send = () => {
                       }
                     />
                     {error ? (
-                      <div className="text-red-700 font-bold text-xs">
+                      <div className="text-[#ff3d3d] font-bold text-xs">
                         {error || t('Amount Is Required')}
                       </div>
                     ) : null}
                   </IonCol>
                   <IonCol size="auto">
                     <div className="w-full justify-end">
-                      <IonButton size="small">{t('MAX')}</IonButton>
+                      <IonButton>{t('MAX')}</IonButton>
                     </div>
                   </IonCol>
                 </IonRow>

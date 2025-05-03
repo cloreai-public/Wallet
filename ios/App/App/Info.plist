@@ -27,6 +27,8 @@
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
+	<key>NSFaceIDUsageDescription</key>
+    <string>We use Face ID to secure your wallet.</string>
 	<array>
 		<string>armv7</string>
 	</array>

@@ -26,13 +26,17 @@ import DynamicTitle from '../components/DynamicTitle';
 
 export const metadata: Metadata = {
   //title: 'Clore Web Wallet',
-  description: 'Manage your $CLORE securely with Clore.ai\'s intuitive web wallet. Effortlessly store, send, and receive CLORE Blockchain, all while benefiting from top-notch security features and a user-friendly interface.',
+  description:
+    "Manage your $CLORE securely with Clore.ai's intuitive web wallet. Effortlessly store, send, and receive CLORE Blockchain, all while benefiting from top-notch security features and a user-friendly interface.",
 };
 
 export const viewport: Viewport = {
   initialScale: 1,
   width: 'device-width',
   viewportFit: 'cover',
+  // minimumScale: 1.0,
+  // maximumScale: 1.0,
+  // userScalable: false,
 };
 
 export default function RootLayout({

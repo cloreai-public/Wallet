@@ -82,7 +82,7 @@ export class Blockbook {
         return { balance: balance as number, txs: txs as any[] };
       })
       .catch(error => {
-        console.log(error);
+        // console.log(error);
         return { balance: 0, txs: [] };
       });
   }
@@ -95,7 +95,7 @@ export class Blockbook {
         return tx_resp.data;
       })
       .catch(error => {
-        console.log(error);
+        // console.log(error);
         return [];
       });
   }

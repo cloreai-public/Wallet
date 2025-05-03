@@ -92,7 +92,7 @@ export async function addWallet(name: string, password: string) {
     if (!mnemonic) return false;
     const node = await getHDNode(mnemonic, walletIndex);
     if (!node) {
-      console.log('failed');
+      // console.log('failed');
       return false;
     }
     const childNode = node.root.derivePath(node.derivePath);
@@ -182,7 +182,7 @@ export async function buildTransaction(
     if (!mnemonic) return false;
     const node = await getHDNode(mnemonic, walletIndex);
     if (!node) {
-      console.log('failed');
+      // console.log('failed');
       return false;
     }
     const childNode = node.root.derivePath(node.derivePath);
@@ -233,12 +233,12 @@ export async function buildMessage(message: string, password: string) {
     const encryptedMnemonic = useCloreState.getState().encryptedMnemonic;
     const mnemonic = await decrypt(encryptedMnemonic, password, mnemonicSalt);
     if (!mnemonic) {
-      console.log('failed');
+      // console.log('failed');
       return false;
     }
     const node = await getHDNode(mnemonic, walletIndex);
     if (!node) {
-      console.log('failed');
+      // console.log('failed');
       return false;
     }
     const childNode = node.root.derivePath(node.derivePath);

@@ -16,17 +16,14 @@ import {
 } from '@ionic/react';
 import { useState, useEffect } from 'react';
 import { chevronBackOutline } from 'ionicons/icons';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Zoom, Keyboard } from 'swiper/modules';
-import SwiperRef from 'swiper';
 import { EndPoints } from 'components/router/config';
 import RecoveryPhrase from './recovery-phrase';
 import VerifyPhrase from './verify-phrase';
 import FinishAccount from './finish-account';
-import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import 'swiper/css';
 import 'swiper/css/keyboard';
+import 'swiper/css/navigation';
 
 // Clore Wallet Lug
 import { createMnemonic } from 'components/hooks/use-clore-state';
@@ -46,15 +43,14 @@ const CreateStep = () => {
       description: t('Store your recovery phrase in a safe & secure place'),
     },
   ];
-  
-  const [swiper, setSwiper] = useState<SwiperRef | null>(null);
-  const [activeIndex, setActiveIndex] = useState<number>(0);
+
+  const [currentView, setCurrentView] = useState(1);
   const [heading, setHeading] = useState<{
     title?: string;
     description?: string;
   }>(HeadingDatas[0]);
   const router = useIonRouter();
-  
+
   useEffect(() => {
     const wallets = useCloreState.getState().wallets;
     if (wallets && useCloreState.getState().wallets.length > 0) {
@@ -68,38 +64,62 @@ const CreateStep = () => {
     checkForRecovery();
   }, []);
 
-  const location = useLocation();
+  useEffect(() => {
+    switchView(currentView);
+  }, [currentView]);
+
   const checkForRecovery = () => {
     try {
-      if (location.pathname === EndPoints.create.recover) {
+      if (currentView === 1 && location.search === '?recover=true') {
         setRecover(true);
       } else setRecover(false);
     } catch (e) {
-      console.log(e);
+      // console.log(e);
     }
   };
 
   const handleBack = () => {
-    if (activeIndex) {
-      if (swiper) swiper.slideTo(activeIndex - 1);
-    } else {
-      router.push(EndPoints.register);
-    }
+    let newView = currentView - 1;
+    if (newView < 1) router.push(EndPoints.register);
+    else setCurrentView(newView);
   };
 
   const handleNext = () => {
-    if (swiper) swiper.slideTo(activeIndex + 1);
+    let newView = currentView + 1;
+    if (newView < 3) setCurrentView(newView);
   };
 
-  const onSlideChange = (s: SwiperRef) => {
-    setHeading(HeadingDatas[activeIndex]);
-    setActiveIndex(s.activeIndex);
-    if(s.activeIndex === 0){
-      // reset in case user goes back and chooses 
-      // create new recovery phrase
+  const switchView = (view: number) => {
+    setCurrentView(view);
+    if (view === 0) {
       checkForRecovery();
       setRecoverMnemonic([]);
       mnemonic = createMnemonic();
+    }
+  };
+
+  const renderView = () => {
+    switch (currentView) {
+      case 1:
+        return (
+          <RecoveryPhrase
+            mnemonic={mnemonic}
+            recover={recover}
+            setRecoverMnemonic={setRecoverMnemonic}
+            handleNext={handleNext}
+          />
+        );
+      case 2:
+        return (
+          <VerifyPhrase
+            mnemonic={mnemonic}
+            recover={recover}
+            recoverMnemonic={recoverMnemonic}
+            handleNext={handleNext}
+          />
+        );
+      case 3:
+        return <FinishAccount />;
     }
   };
 
@@ -111,13 +131,13 @@ const CreateStep = () => {
             <IonIcon slot="end" icon={chevronBackOutline} size="medium" />
           </IonButtons>
           <IonTitle className="IonTitlex-0 text-[20px]">
-            {activeIndex === 1
+            {currentView === 1
               ? 'Verify Your Recovery Phrase'
               : 'Create New Wallet'}
           </IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding w-full">
+      <IonContent className="ion-padding w-full" scrollY={false}>
         <div
           className="w-full "
           style={{
@@ -132,7 +152,7 @@ const CreateStep = () => {
             <IonCardHeader>
               <div>
                 <IonCardSubtitle className="text-center">
-                  {t('Step')} {activeIndex + 1}/3
+                  {t('Step')} {currentView}/2
                 </IonCardSubtitle>
                 <IonCardTitle className="text-[20px] text-center">
                   {heading.title}
@@ -144,38 +164,7 @@ const CreateStep = () => {
               </div>
             </IonCardHeader>
             <IonCardContent>
-              <Swiper
-                modules={[Keyboard, Zoom]}
-                keyboard
-                zoom={false}
-                autoHeight={true}
-                noSwiping
-                allowTouchMove={false}
-                onSwiper={s => {
-                  setSwiper(s);
-                }}
-                onSlideChange={onSlideChange}
-              >
-                <SwiperSlide>
-                  <RecoveryPhrase
-                    mnemonic={mnemonic}
-                    recover={recover}
-                    setRecoverMnemonic={setRecoverMnemonic}
-                    handleNext={handleNext}
-                  />
-                </SwiperSlide>
-                <SwiperSlide>
-                  <VerifyPhrase
-                    mnemonic={mnemonic}
-                    recover={recover}
-                    recoverMnemonic={recoverMnemonic}
-                    handleNext={handleNext}
-                  />
-                </SwiperSlide>
-                <SwiperSlide>
-                  <FinishAccount />
-                </SwiperSlide>
-              </Swiper>
+              {renderView()}
 
               <IonToast
                 trigger="submit"

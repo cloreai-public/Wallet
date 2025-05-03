@@ -71,21 +71,25 @@ const Dashboard = () => {
           }
         }
       } catch (e) {
-        console.log(e);
+        // console.log(e);
         setLoaded(true);
       }
     }
   }
 
-
   useEffect(() => {
+    // if no address then confirm there is a logged in user
+    const user = useCloreState.getState().user;
+    if (!user) {
+      router.push(EndPoints.register);
+    }
     getCurrentBalance();
-    let intervalId = setInterval(getCurrentBalance,1000 * 60 * 5)
-    return(() => {
-        clearInterval(intervalId)
-    })
-  },[])
-  
+    let intervalId = setInterval(getCurrentBalance, 1000 * 60 * 5);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   const writeToClipboard = async () => {
     if (activeWallet.address) {
       await Clipboard.write({ string: `${activeWallet.address}` });
@@ -199,6 +203,21 @@ const Dashboard = () => {
                     </div>
                   </IonCol>
                 </IonRow>
+                <IonRow>
+                  <IonCol size="6">
+                    <div className="ion-activatable btn w-full">
+                      <IonButton
+                        id="popover-button"
+                        className="w-full footer-button"
+                        onClick={() => {
+                          router.push(EndPoints.auth.pos);
+                        }}
+                      >
+                        <span>{t('POS / Staking')}</span>
+                      </IonButton>
+                    </div>
+                  </IonCol>
+                </IonRow>
               </IonGrid>
             </div>
           </IonCard>
@@ -209,6 +228,7 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 function componentDidMount() {
   throw new Error('Function not implemented.');
 }
@@ -216,4 +236,3 @@ function componentDidMount() {
 function componentWillUnmount() {
   throw new Error('Function not implemented.');
 }
-

@@ -1,5 +1,16 @@
 'use client';
-import { IonCol, IonRow, IonGrid, IonInput, IonButton, useIonLoading, IonAvatar, IonContent, IonHeader, IonImg, IonItem, IonLabel, IonList, IonModal, IonTitle, IonLoading } from '@ionic/react';
+import {
+  IonCol,
+  IonRow,
+  IonGrid,
+  IonInput,
+  IonButton,
+  useIonLoading,
+  IonContent,
+  IonText,
+  IonModal,
+  IonCheckbox,
+} from '@ionic/react';
 import React, { useMemo, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -8,6 +19,11 @@ import { useToast } from 'components/router/toast-context';
 import { createWallet } from 'components/hooks/use-clore-state';
 import { useTranslation } from 'react-i18next';
 import { Validation } from 'components/hooks/use-validation';
+import isBiometric, {
+  generatePassword,
+  saveBiometric,
+  verifyBiometric,
+} from '../../utils/biometric';
 const v = new Validation();
 
 interface IProps {
@@ -22,7 +38,6 @@ type TState = {
   verifyWord2: string;
   password: string;
   name: string;
-  confirmPassword: string;
 };
 
 const defaultValues: TState = {
@@ -30,7 +45,6 @@ const defaultValues: TState = {
   verifyWord2: '',
   name: '',
   password: '',
-  confirmPassword: '',
 };
 
 function VerifyPhrase(props: IProps) {
@@ -38,14 +52,43 @@ function VerifyPhrase(props: IProps) {
   const { showToast } = useToast();
   const { mnemonic, recover, recoverMnemonic, handleNext } = props;
   const [loading, dismissLoading] = useIonLoading();
+  const [showPass, setShowPass] = useState(true);
 
   const modal = useRef<HTMLIonModalElement>(null);
   const page = useRef(null);
-  const [presentingElement, setPresentingElement] = useState<HTMLElement | null>(null);
+  const [presentingElement, setPresentingElement] =
+    useState<HTMLElement | null>(null);
+  const [isAvailable, setAvailable] = useState(false);
+  const [useBiometric, setUseBiometric] = useState(false);
+  // const [proceedIsDisabled, setProceedIsDisabled] = useState(false);
 
   useEffect(() => {
     setPresentingElement(page.current);
+    // check Biometrics
+    const checkIfAvailableBiometric = async () => {
+      const res = await isBiometric();
+      setAvailable(res);
+    };
+    checkIfAvailableBiometric();
   }, []);
+
+  // check Biometrics
+  useEffect(() => {
+    const checkBiometric = async () => {
+      const verify = await verifyBiometric();
+      if (!verify) {
+        setUseBiometric(false);
+        showToast(
+          t('Biometric verification'),
+          t('You are failed in biometric verification!'),
+          'danger',
+        );
+      }
+    };
+    if (useBiometric) {
+      checkBiometric();
+    }
+  }, [useBiometric]);
 
   const SignUpSchema = Yup.object().shape({
     verifyWord1: Yup.string().required(t('Word is required')),
@@ -54,9 +97,6 @@ function VerifyPhrase(props: IProps) {
     password: Yup.string()
       .required(t('Password is required'))
       .min(6, t('Password must be at least 6 characters')),
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref('password')], t('Passwords must match'))
-      .required(t('Confirm Password is required')),
   });
 
   const methods = useForm({
@@ -80,9 +120,8 @@ function VerifyPhrase(props: IProps) {
     setValue('verifyWord2', '');
     setValue('name', '');
     setValue('password', '');
-    setValue('confirmPassword', '');
 
-    // get two random numbers for word verification  
+    // get two random numbers for word verification
     const one = Math.floor(Math.random() * 12);
     const two = (() => {
       let r = Math.floor(Math.random() * 12);
@@ -92,84 +131,92 @@ function VerifyPhrase(props: IProps) {
       return r;
     })();
 
-    const result = [one,two].sort((a, b) => Math.abs(a) - Math.abs(b))
+    const result = [one, two].sort((a, b) => Math.abs(a) - Math.abs(b));
     return result;
   }, [recover, mnemonic, recoverMnemonic]);
 
-  const handleDismissNotice = async () => {
+  // const closeNoticeModal = async () => {
+  //   await modal.current?.dismiss();
+  // };
+
+  // const openNoticeModal = async () => {
+  //   await modal.current?.present();
+  // };
+
+  const inputError = async (fieldName: string, message: string) => {
+    // await closeNoticeModal();
+    setError(fieldName, { message });
+  };
+
+  const checkInputs = async () => {
+    let { error, message } = { error: false, message: '' };
+
+    const finalMnemonic = recover ? recoverMnemonic : mnemonic;
+    const verifyWordOne = finalMnemonic[verifyingWords[0]];
+    const verifyWordTwo = finalMnemonic[verifyingWords[1]];
+
+    if (getValues().verifyWord1 !== verifyWordOne) {
+      await inputError('verifyWord1', t('Invalid word'));
+      return false;
+    }
+
+    if (getValues().verifyWord2 !== verifyWordTwo) {
+      await inputError('verifyWord2', t('Invalid word'));
+      return false;
+    }
+
+    ({ error, message } = v.isName(getValues().name));
+    if (error) {
+      await inputError('name', message);
+      return false;
+    }
+
+    let password = '';
+    if (isAvailable && useBiometric) {
+      password = generatePassword();
+      saveBiometric(getValues().name, password);
+    } else {
+      password = getValues().password;
+      ({ error, message } = v.isPassword(getValues().password));
+      if (error) {
+        await inputError('password', message);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const handleCreateWallet = async () => {
+    // setProceedIsDisabled(true);
+    const isValid = await checkInputs();
+    if (!isValid) return;
+
     await loading({
       message: `Generating wallet, please wait...`,
       animated: true,
       backdropDismiss: false,
       spinner: 'lines-sharp-small',
       keyboardClose: false,
-    })
-    setTimeout(() => {
-      handleCreateWallet();
-    }, 2000);
-  }
+    });
 
-  const closeNoticeModal = async () => {
-    await modal.current?.dismiss();
-    await dismissLoading();
-  }
+    setTimeout(async () => {
+      const wallet = await createWallet(
+        getValues().name,
+        recover ? recoverMnemonic : mnemonic,
+        getValues().password,
+      );
 
-  const handleCreateWallet = async () => {
-    try {
-      const finalMnemonic = recover ? recoverMnemonic : mnemonic;
-      const verifyWordOne = finalMnemonic[verifyingWords[0]];
-      const verifyWordTwo = finalMnemonic[verifyingWords[1]];
-
-      if (getValues().verifyWord1 !== verifyWordOne) {
-        await closeNoticeModal();
-        setError('verifyWord1', { message: t('Invalid word') });
-        return;
-      }
-      if (getValues().verifyWord2 !== verifyWordTwo) {
-        await closeNoticeModal();
-        setError('verifyWord2', { message: t('Invalid word') });
-        return;
-      }
-
-      if (getValues().password === getValues().confirmPassword) {
-        const { error, message } = v.isPassword(getValues().password);
-        if (error) {
-          await closeNoticeModal();
-          setError('password', { message });
-          return;
-        }
-        
-        const wallet = await createWallet(
-          getValues().name,
-          finalMnemonic,
-          getValues().confirmPassword,
-        );
-        
-        await closeNoticeModal();
-        if (wallet) {
-          handleNext();
-        } else {
-          showToast('Error', t('Creating wallet failed'), 'danger');
-          reset();
-        }
-      } else {
-        await closeNoticeModal();
-        setError('confirmPassword', { message: t('Password match error') });
-        showToast('Error', t('Password Match Error'), 'danger');
-        return;
-      }
-    } catch (error) {
-      console.error(error);
-      await closeNoticeModal();
-      showToast('Panic Error', t('Creating wallet failed'), 'danger');
-      reset();
-    }
+      await dismissLoading();
+      // await closeNoticeModal();
+      handleNext();
+    }, 1000);
   };
 
   const showError = (_fieldName: string) => {
     const error = (errors as any)[_fieldName];
     return error ? (
-      <div className="text-red-700 font-bold text-xs">
+      <div className="text-[#ff3d3d] font-bold text-xs">
         {error.message || t('Field Is Required')}
       </div>
     ) : null;
@@ -186,45 +233,49 @@ function VerifyPhrase(props: IProps) {
         <IonRow>
           <IonCol className="px-0">
             <IonInput
+              required
               mode="md"
               fill="outline"
               label={`#${verifyingWords[0] + 1}`}
               labelPlacement="stacked"
               value={getValues().verifyWord1}
-              onIonInput={(e: Event) => 
+              onIonInput={(e: Event) =>
                 setValue('verifyWord1', (e.target as HTMLInputElement).value)
               }
               onIonChange={(e: Event) => {
                 const currentMnemonic = recover ? recoverMnemonic : mnemonic;
-                if(getValues().verifyWord1 !== currentMnemonic[verifyingWords[0]]) {
+                if (
+                  getValues().verifyWord1 !== currentMnemonic[verifyingWords[0]]
+                ) {
                   setError('verifyWord1', { message: t('Invalid word') });
-                }else{
+                } else {
                   clearErrors('verifyWord1');
                 }
-               }
-              }
+              }}
             />
             {showError('verifyWord1')}
           </IonCol>
           <IonCol className="px-0 ml-4">
             <IonInput
+              required
               mode="md"
               fill="outline"
               label={`#${verifyingWords[1] + 1}`}
               labelPlacement="stacked"
               value={getValues().verifyWord2}
-              onIonInput={(e: Event) => 
+              onIonInput={(e: Event) =>
                 setValue('verifyWord2', (e.target as HTMLInputElement).value)
               }
               onIonChange={(e: Event) => {
                 const currentMnemonic = recover ? recoverMnemonic : mnemonic;
-                if(getValues().verifyWord2 !== currentMnemonic[verifyingWords[1]]) {
+                if (
+                  getValues().verifyWord2 !== currentMnemonic[verifyingWords[1]]
+                ) {
                   setError('verifyWord2', { message: t('Invalid word') });
-                }else{
+                } else {
                   clearErrors('verifyWord2');
                 }
-               }
-              }
+              }}
             />
             {showError('verifyWord2')}
           </IonCol>
@@ -232,77 +283,91 @@ function VerifyPhrase(props: IProps) {
       </IonGrid>
       <div className="my-4">
         <IonInput
+          required
           mode="md"
           fill="outline"
           label={t('Wallet Name')}
           labelPlacement="floating"
           placeholder="e.g. Trading, NFT Vault, Investment"
           value={getValues().name}
-          onIonInput={(e: Event) => 
+          onIonInput={(e: Event) =>
             setValue('name', (e.target as HTMLInputElement).value)
           }
-          
+          onIonChange={(e: Event) => {
+            clearErrors('name');
+          }}
         />
         {showError('name')}
       </div>
-      <div>
-        <IonInput
-          mode="md"
-          fill="outline"
-          label={t('Create Password')}
-          labelPlacement="floating"
-          placeholder="*************"
-          value={getValues().password}
-          onIonInput={(e: Event) => 
-            setValue('password', (e.target as HTMLInputElement).value)
-          }
-          type="password"
-        />
-        {showError('password')}
+
+      <div className="my-2">
+        <h2>Minimum Password Requirements</h2>
+        <p>
+          <div className="my-2">A password is used to encrypt your wallet </div>
+          <div>2 uppercase, 2 lowercase, 2 numbers, </div>
+          <div>2 symbols , and 10+ characters long</div>
+        </p>
       </div>
-      <div className="my-4">
-        <IonInput
-          mode="md"
-          fill="outline"
-          label={t('Confirm Password')}
-          labelPlacement="floating"
-          type="password"
-          placeholder="*************"
-          value={getValues().confirmPassword}
-          onIonInput={(e: Event) => 
-            setValue('confirmPassword', (e.target as HTMLInputElement).value)
-          }
-        />
-        {showError('confirmPassword')}
-      </div>
-      <IonButton id="open-modal">{t('Next')}</IonButton>
-      <IonModal ref={modal} trigger="open-modal" presentingElement={presentingElement!} className='notice-modal'>
-        <IonContent style={{height: '200px'}} className='ion-padding'>
-          <h2 className='ion-padding text-center'>
-              Notice
-          </h2>
-          <IonList>
-            <IonItem>
-              <IonLabel>
-                Generating the wallet may take several seconds. Please be patient.
-              </IonLabel>
-            </IonItem>
-            <IonItem>
-              <IonLabel>
-                Have you stored your recovery phrase in a safe place?
-              </IonLabel>
-            </IonItem>
-            <IonItem>
-              <IonLabel>
-                To reset your password, log out, then follow recover steps.
-              </IonLabel>
-            </IonItem>
-          </IonList>
-        </IonContent>
-        <div className="ion-padding" style={{display: 'grid'}}>
-          <IonButton onClick={handleDismissNotice}>Proceed</IonButton>
+
+      {isAvailable ? (
+        <div>
+          <IonCheckbox
+            mode="md"
+            labelPlacement="end"
+            checked={useBiometric}
+            onIonChange={e => setUseBiometric(e.target.checked)}
+          >
+            {t('Use biometric verification')}
+          </IonCheckbox>
         </div>
-      </IonModal>
+      ) : (
+        <div className="mb-4">
+          <IonInput
+            mode="md"
+            fill="outline"
+            label="Password"
+            labelPlacement="floating"
+            value={getValues().password}
+            onIonInput={(e: Event) =>
+              setValue('password', (e.target as HTMLInputElement).value)
+            }
+            type={'password'}
+          />
+          {showError('password')}
+        </div>
+      )}
+
+      <IonButton onClick={handleCreateWallet}>{t('Next')}</IonButton>
+      {/* <IonModal
+        ref={modal}
+        trigger="open-modal"
+        presentingElement={presentingElement!}
+        className="notice-modal"
+      >
+        <IonContent style={{ height: '200px' }} className="ion-padding">
+          <h2 className="ion-padding text-center text-xl">Notice</h2>
+          <div className="my-1">
+            <IonText className="text-lg">
+              Generating the wallet may take several seconds. Please be patient.
+            </IonText>
+          </div>
+          <div className="my-2">
+            <IonText className="text-lg">
+              Have you stored your recovery phrase in a safe place?
+            </IonText>
+          </div>
+          <div className="my-1">
+            <IonText className="text-lg">
+              To reset your password, log out, then follow recover steps.
+            </IonText>
+          </div>
+        </IonContent>
+        <div className="ion-padding" style={{ display: 'grid' }}>
+          <IonButton onClick={handleCreateWallet} disabled={proceedIsDisabled}>
+            Proceed
+          </IonButton>
+        </div>
+      </IonModal> */}
     </div>
   );
 }
