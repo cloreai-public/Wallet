@@ -70,14 +70,14 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle('getAccountAddress', async () => {
+  ipcMain.handle('getAccountAddress', async (event, params) => {
     console.log('[MAIN] Received getAccountAddress call');
     try {
       const response = await axios.post('http://155.138.230.177:4568/', {
         jsonrpc: '1.0',
         id: 'wallet',
         method: 'getaccountaddress',
-        params: ["myaccount"],
+        params: params,
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -100,6 +100,30 @@ app.whenReady().then(() => {
         jsonrpc: '1.0',
         id: 'delegatestake',
         method: 'delegatestake',
+        params: params,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Basic ' + Buffer.from('abc:abc').toString('base64'),
+        }
+      });
+
+      console.log('[MAIN] RPC result:', response.data.result);
+      return response.data.result;
+    } catch (err) {
+      const rpcError = err.response?.data?.error || err.message;
+      console.error('[MAIN] RPC error:', rpcError);
+      return { error: rpcError };
+    }
+  });
+
+  ipcMain.handle('sendToAddress', async (event, params) => {
+    console.log('[MAIN] Received sendToAddress');
+    try {
+      const response = await axios.post('http://155.138.230.177:4568/', {
+        jsonrpc: '1.0',
+        id: 'sendtoaddress',
+        method: 'sendtoaddress',
         params: params,
       }, {
         headers: {

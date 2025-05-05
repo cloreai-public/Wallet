@@ -13,7 +13,8 @@ import {
   IonText,
   IonNote,
   IonButton,
-  useIonRouter, IonInput,
+  useIonRouter,
+  IonInput,
 } from '@ionic/react';
 import useCloreState from 'components/hooks/use-clore-state';
 import { Wallet } from 'components/constants/types';
@@ -41,33 +42,63 @@ const Pos = () => {
     setAddressLabel(` (${contact.name})`);
   };
 
-  const handleDelegateStake = async () => {
+  const handleDelegateStake = async (flag: number) => {
     setError('');
 
     if (amount <= 0) {
-      showToast('Error', t('amount is required'), 'danger')
+      showToast('Error', t('amount is required'), 'danger');
       return;
     }
 
     try {
-      const accountAddress = await (window as any).electronAPI.getAccountAddress();
+      const accountAddress = await (window as any).electronAPI.getAccountAddress(["myaccount"]);
+      const ownerAddress = await (window as any).electronAPI.getAccountAddress([""]);
       console.log('accountAddress', accountAddress);
-      const params = [accountAddress, amount];
-      const result = await (window as any).electronAPI.delegateStake(params);
+      console.log('ownerAddress', ownerAddress);
 
-      if (result?.error) {
-        showToast('Error', t('Delegation failed'), 'danger')
-        return;
+      if (flag == 1) {
+        const params = [accountAddress, amount];
+        const result = await (window as any).electronAPI.delegateStake(params);
+
+        if (result?.error) {
+          showToast('Error', t('Delegation failed'), 'danger');
+          return;
+        }
+        console.log('result', result);
+
+        // Show success toast
+        showToast(
+          'Signature',
+          `${t('Delegation successful')}\nTXID: ${result.txid}`,
+          'success',
+        );
+      } else {
+        const result = await (window as any).electronAPI.sendToAddress([
+          ownerAddress,
+          amount,
+        ]);
+
+        if (result?.error) {
+          showToast(
+            'Error',
+            t('Unstaking failed') + `: ${result.error.message || result.error}`,
+            'danger',
+          );
+          return;
+        }
+
+        console.log('Unstaking result:', result);
+        showToast(
+          'Success',
+          `${t('Unstaking successful')}\nTXID: ${result}`,
+          'success',
+        );
       }
-      console.log('result', result);
-
-      // Show success toast
-      showToast('Signature', `${t('Delegation successful')}\nTXID: ${result.txid}`, 'success');
 
       // Optionally clear input
       setAmount(0);
     } catch (err) {
-      showToast('Error', t('An unexpected error occurred'), 'danger')
+      showToast('Error', t('An unexpected error occurred'), 'danger');
       console.error(err);
     }
   };
@@ -122,7 +153,7 @@ const Pos = () => {
                     <div className="ion-activatable btn w-full">
                       <IonButton
                         className="w-full footer-button"
-                        onClick={handleDelegateStake}
+                        onClick={() => handleDelegateStake(1)}
                       >
                         <span>{t('Staking')}</span>
                       </IonButton>
@@ -133,9 +164,7 @@ const Pos = () => {
                       <IonButton
                         id="popover-button"
                         className="w-full footer-button"
-                        onClick={() => {
-                          router.goBack();
-                        }}
+                        onClick={() => handleDelegateStake(0)}
                       >
                         <span>{t('UnStaking')}</span>
                       </IonButton>
