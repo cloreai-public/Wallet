@@ -20,10 +20,12 @@ import { Wallet } from 'components/constants/types';
 import { useTranslation } from 'react-i18next';
 import React, { useEffect, useState } from 'react';
 import { useStakingStatus } from 'components/hooks/use-staking-status';
-
+import { useToast } from 'components/router/toast-context';
 
 const Pos = () => {
   const { t } = useTranslation();
+  const { showToast } = useToast();
+
   const activeWallet = useCloreState(
     (state: { activeWallet: Wallet }) => state.activeWallet,
   );
@@ -37,6 +39,37 @@ const Pos = () => {
   const setContact = (contact: any) => {
     setAddress(contact.address);
     setAddressLabel(` (${contact.name})`);
+  };
+
+  const handleDelegateStake = async () => {
+    setError('');
+
+    if (amount <= 0) {
+      showToast('Error', t('amount is required'), 'danger')
+      return;
+    }
+
+    try {
+      const accountAddress = await (window as any).electronAPI.getAccountAddress();
+      console.log('accountAddress', accountAddress);
+      const params = [accountAddress, amount];
+      const result = await (window as any).electronAPI.delegateStake(params);
+
+      if (result?.error) {
+        showToast('Error', t('Delegation failed'), 'danger')
+        return;
+      }
+      console.log('result', result);
+
+      // Show success toast
+      showToast('Signature', `${t('Delegation successful')}\nTXID: ${result.txid}`, 'success');
+
+      // Optionally clear input
+      setAmount(0);
+    } catch (err) {
+      showToast('Error', t('An unexpected error occurred'), 'danger')
+      console.error(err);
+    }
   };
 
   return (
@@ -89,9 +122,7 @@ const Pos = () => {
                     <div className="ion-activatable btn w-full">
                       <IonButton
                         className="w-full footer-button"
-                        onClick={() => {
-                          router.goBack();
-                        }}
+                        onClick={handleDelegateStake}
                       >
                         <span>{t('Staking')}</span>
                       </IonButton>
