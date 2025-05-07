@@ -47,13 +47,13 @@ const createWindow = () => {
 };
 
 app.whenReady().then(() => {
-  ipcMain.handle('getStakingStatus', async () => {
-    console.log('[MAIN] Received getStakingStatus call');
+  ipcMain.handle('listColdUtxos', async () => {
+    console.log('[MAIN] Received listColdUtxos call');
     try {
       const response = await axios.post('http://155.138.230.177:4568/', {
         jsonrpc: '1.0',
         id: 'wallet',
-        method: 'getstakingstatus',
+        method: 'listcoldutxos',
         params: [],
       }, {
         headers: {

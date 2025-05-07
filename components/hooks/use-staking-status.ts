@@ -1,39 +1,29 @@
 import { useEffect, useState } from 'react';
 
-export interface CloreStakingStatus {
-  staking_status: number;
-  staking_enabled: number;
-  coldstaking_enabled: number;
-  haveconnections: number;
-  walletunlocked: number;
-  stakeablecoins: number;
-  stakingbalance: number;
-  stakesplitthreshold: number;
-  lastattempt_age: number;
-  lastattempt_depth: number;
-  lastattempt_hash: string;
-  lastattempt_coins: number;
-  lastattempt_tries: number;
+export interface ColdStakingSummary {
+  balance: number;
+  address: string;
+  utxos: any[];
 }
 
 export function useStakingStatus() {
-  const [status, setStatus] = useState<CloreStakingStatus | null>(null);
+  const [status, setStatus] = useState<ColdStakingSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchStatus() {
       try {
-        const result = await window.electronAPI.getStakingStatus();
+        const result = await window.electronAPI.listColdUtxos();
         if (!result) {
-          console.log('getStakingStatus returned null or undefined');
+          console.log('listColdUtxos returned null or undefined');
         } else {
-          console.log('Staking result:', result);
+          console.log('listColdUtxos result:', result);
           setStatus(result);
         }
       } catch (err) {
         console.error('RPC error:', err);
-        setError('Failed to fetch staking status');
+        setError('Failed to fetch cold staking status');
       } finally {
         setLoading(false);
       }

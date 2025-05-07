@@ -36,12 +36,31 @@ const Pos = () => {
   const [error, setError] = useState('');
   const [address, setAddress] = useState('');
   const [addressLabel, setAddressLabel] = useState('');
+  const [coldStakingBalance, setColdStakingBalance] = useState<number>(0);
 
   const setContact = (contact: any) => {
     setAddress(contact.address);
     setAddressLabel(` (${contact.name})`);
   };
 
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const accountAddress = await (window as any).electronAPI.getAccountAddress(["myaccount"]);
+        const myBalance = status?.utxos
+          ?.filter((utxo: any) => utxo['cold-staker'] === accountAddress)
+          ?.reduce((total: number, utxo: any) => total + parseFloat(utxo.amount), 0) || 0;
+        console.log(`Cold staking balance for ${accountAddress}: ${myBalance}`);
+        setColdStakingBalance(myBalance);
+      } catch (err) {
+        console.error('Error fetching cold staking balance:', err);
+        setColdStakingBalance(0);
+      }
+    };
+  
+    if (status) fetchBalance();
+  }, [status]);
+  
   const handleDelegateStake = async (flag: number) => {
     setError('');
 
@@ -114,7 +133,7 @@ const Pos = () => {
               </IonLabel>
             </div>
             <IonText className="text-lg ">
-              Staked: {status?.stakingbalance.toFixed(2)} CLORE
+              Staked: {coldStakingBalance} CLORE
             </IonText>
             <div className="my-1 pt-[0px] w-full">
               <IonGrid>

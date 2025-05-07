@@ -4,7 +4,7 @@ export {};
 declare global {
   interface Window {
     electronAPI: {
-      getStakingStatus: () => Promise<any>;
+      listColdUtxos: () => Promise<any>;
     };
   }
 }
