@@ -24,6 +24,7 @@
     "category": "public.app-category.utilities",
     "icon": "public/icon.icns",
     "target": ["dmg", "zip"],
-    "mergeASARs": false
+    "mergeASARs": false,
+    "identity": "19D29F7EFD04699AF564671DB3E2E6886CF1E2FB"
   }
 }
