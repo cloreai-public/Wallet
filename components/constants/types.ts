@@ -6,8 +6,14 @@ export type IAuthContext = {
 export type Wallet = {
   index: number;
   name: string;
-  address: string;
-  publicKey: string;
+  addresses: {
+    mainnet: string;
+    testnet: string;
+  };
+  publicKeys: {
+    mainnet: string;
+    testnet: string;
+  };
   balance: number;
   txs: any[];
 };
@@ -57,8 +63,14 @@ export const defaultState: State = {
   activeWallet: {
     index: 0,
     name: '',
-    address: '',
-    publicKey: '',
+    addresses: {
+      mainnet: '',
+      testnet: '',
+    },
+    publicKeys: {
+      mainnet: '',
+      testnet: '',
+    },
     balance: 0,
     txs: [],
   },

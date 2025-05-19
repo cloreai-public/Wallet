@@ -1,4 +1,5 @@
 import axios from 'axios';
+import useCloreState from './use-clore-state';
 
 // const ws = new WebSocket('wss://blockbook.clore.zelcore/');
 
@@ -43,83 +44,78 @@ import axios from 'axios';
 //   );
 // }
 
-const bbTransactionsUrl =
-  'https://cors_everywhere_blockbook.clore.ai:443/api/v2/address/{ADDRESS}?details=txslight&pageSize=20';
-const bbUtxoUrl =
-  'https://cors_everywhere_blockbook.clore.ai:443/api/v2/utxo/{ADDRESS}';
-const bbSendTransactionUrl =
-  'https://cors_everywhere_blockbook.clore.ai:443/api/v2/sendtx/';
-
 export class Blockbook {
+  baseUrl: string;
+
+  constructor() {
+    const network = useCloreState.getState().network;
+
+    this.baseUrl =
+      network === 'mainnet'
+        ? 'https://cors_everywhere_blockbook.clore.ai:443'
+        : 'http://155.138.230.177:443'; // testnet IP
+
+    console.log('[Blockbook] Network:', network);
+    console.log('[Blockbook] Base URL:', this.baseUrl);
+  }
+
   async getWalletData(address: string) {
-    if (!address) {
-      // console.log('Blockbook: No address');
-      return { error: true };
-    }
-    const url = bbTransactionsUrl.replace('{ADDRESS}', address);
+    if (!address) return { error: true };
+
+    const url = `${this.baseUrl}/api/v2/address/${address}?details=txslight&pageSize=20`;
 
     let balance = 0;
     let txs: any[] = [];
+
     return axios
       .get(url)
       .then(response => {
         balance = Number(response.data['balance']) / 1e8 || 0;
-        const transactions = response.data['transactions'];
-        if (transactions) {
-          txs = transactions.map((tx: any) => {
-            let total = 0;
-            tx.vout.forEach((vout: any) => {
-              if (vout.isOwn) total += Number(vout.value);
-            });
-            const txid = tx.txid;
-            const isOwn = tx.vin[0].isOwn;
-            const value = total / 1e8;
-            const date = getDateTime(tx.blockTime);
-            const confirmations = tx.confirmations;
-            return { txid, isOwn, value, date, confirmations };
+        const transactions = response.data['transactions'] || [];
+
+        txs = transactions.map((tx: any) => {
+          let total = 0;
+          tx.vout.forEach((vout: any) => {
+            if (vout.isOwn) total += Number(vout.value);
           });
-        }
-        return { balance: balance as number, txs: txs as any[] };
+          const txid = tx.txid;
+          const isOwn = tx.vin[0]?.isOwn;
+          const value = total / 1e8;
+          const date = getDateTime(tx.blockTime);
+          const confirmations = tx.confirmations;
+          return { txid, isOwn, value, date, confirmations };
+        });
+
+        return { balance, txs };
       })
-      .catch(error => {
-        // console.log(error);
+      .catch(() => {
         return { balance: 0, txs: [] };
       });
   }
 
   async getUnspent(address: string) {
-    const url = bbUtxoUrl.replace('{ADDRESS}', address);
+    const url = `${this.baseUrl}/api/v2/utxo/${address}`;
     return axios
       .get(url)
-      .then(tx_resp => {
-        return tx_resp.data;
-      })
-      .catch(error => {
-        // console.log(error);
-        return [];
-      });
+      .then(resp => resp.data)
+      .catch(() => []);
   }
 
   async sendTransaction(hex: string) {
+    const url = `${this.baseUrl}/api/v2/sendtx/`;
     return axios
-      .post(bbSendTransactionUrl, hex)
-      .then(response => {
-        // console.log('[sendTransaction.ts]', response.data);
-        return response.data;
-      })
-      .catch(error => {
-        // console.log('[sendTransaction.ts]', error);
-        return { error: error };
-      });
+      .post(url, hex)
+      .then(resp => resp.data)
+      .catch(error => ({ error }));
   }
 }
 
 const getDateTime = (date: number) => {
   return new Date(date * 1000).toLocaleDateString('en-US', {
-    year: 'numeric', // "2024"
-    month: 'short', // "Jan"
-    day: 'numeric', // "20"
-    hour: 'numeric', // "11"
-    minute: 'numeric', // "59"
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
   });
 };

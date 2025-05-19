@@ -47,35 +47,37 @@ const Dashboard = () => {
       (state: { activeWallet: { balance: any } }) => state.activeWallet.balance,
     ),
   );
+  const network = useCloreState((state: { network: string }) => state.network); // 'mainnet' or 'testnet'
 
   async function getCurrentBalance() {
     setLoaded(false);
-
-    if (activeWallet.address) {
-      const data = await bb.getWalletData(activeWallet.address);
+  
+    const currentAddress = activeWallet?.addresses?.[network];
+    
+    if (currentAddress) {
+      const data = await bb.getWalletData(currentAddress);
       setLoaded(true);
       try {
-        if ('balance' in data) {
-          if (data.balance) {
-            setBalance(data.balance);
-            setBalance(data.balance);
-            const wallets = useCloreState.getState().wallets;
-            activeWallet.balance = data.balance;
-            activeWallet.txs = data.txs;
-            wallets[
-              wallets.findIndex(
-                (w: { address: any }) => w.address === activeWallet.address,
-              )
-            ] = activeWallet;
+        if ('balance' in data && data.balance) {
+          setBalance(data.balance);
+  
+          const wallets = useCloreState.getState().wallets;
+          const idx = wallets.findIndex(
+            (w: { addresses: { [x: string]: any } }) => w.addresses[network] === currentAddress
+          );
+          if (idx !== -1) {
+            wallets[idx].balance = data.balance;
+            wallets[idx].txs = data.txs;
             updateWallets(wallets);
           }
         }
       } catch (e) {
-        // console.log(e);
+        console.error(e);
         setLoaded(true);
       }
     }
   }
+  
 
   useEffect(() => {
     // if no address then confirm there is a logged in user
@@ -90,16 +92,23 @@ const Dashboard = () => {
     };
   }, []);
 
-  const writeToClipboard = async () => {
-    if (activeWallet.address) {
-      await Clipboard.write({ string: `${activeWallet.address}` });
-      showToast(
-        `${activeWallet.name} Wallet Address Copied`,
-        `${activeWallet.address}`,
-        'success',
-      );
+  useEffect(() => {
+    const user = useCloreState.getState().user;
+    if (!user) {
+      router.push(EndPoints.register);
+      return;
     }
-  };
+    getCurrentBalance();
+  }, [network]);
+  
+
+  const writeToClipboard = async () => {
+    const address = activeWallet?.addresses?.[network];
+    if (address) {
+      await Clipboard.write({ string: `${address}` });
+      showToast(`${activeWallet.name} Wallet Address Copied`, address, 'success');
+    }
+  };  
 
   return (
     <IonPage>
@@ -134,10 +143,7 @@ const Dashboard = () => {
               <IonText className="text-4xl">
                 {loaded && `${balance}`}
                 {!loaded && (
-                  <IonSkeletonText
-                    animated={true}
-                    style={{ width: '40px', height: '20px' }}
-                  />
+                  <IonSkeletonText animated={true} style={{ width: '40px', height: '20px' }} />
                 )}
                 <span className="text-sm float-right"> Clore</span>
               </IonText>
@@ -145,12 +151,9 @@ const Dashboard = () => {
             <div className="flex justify-center items-center w-2/3 ">
               <IonText className="text-2xl">
                 {loaded &&
-                  `${(balance * price).toFixed(currency == 'btc' ? 8 : 2)} ${currency.toUpperCase()}`}
+                  `${(balance * price).toFixed(currency === 'btc' ? 8 : 2)} ${currency.toUpperCase()}`}
                 {!loaded && (
-                  <IonSkeletonText
-                    animated={true}
-                    style={{ width: '40px', height: '20px' }}
-                  />
+                  <IonSkeletonText animated={true} style={{ width: '40px', height: '20px' }} />
                 )}
               </IonText>
             </div>

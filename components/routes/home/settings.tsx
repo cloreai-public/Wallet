@@ -26,7 +26,7 @@ const Settings = () => {
   const { showToast } = useToast();
   const { t, i18n } = useTranslation();
   const [network, setNetwork] = useState(
-    useCloreState.getState().network || t('mainnet') || 'mainnet',
+    useCloreState.getState().network || 'mainnet'
   );
   const [currency, setCurrency] = useState(
     useCloreState.getState().currency || 'usd',
@@ -50,6 +50,20 @@ const Settings = () => {
     setCurrency(curr);
   }
 
+  function handleNetworkChange(net: string) {
+    useCloreState.getState().updateSettings({
+      currency,
+      language,
+      network: net,
+    });
+    setNetwork(net);
+    console.log('Network updated to:', net);
+    console.log('Current useCloreState value:', useCloreState.getState());
+
+    showToast('Network Changed', `Switched to ${net}`, 'success');
+
+  }  
+  
   const router = useIonRouter();
   const handleLogOut = async () => {
     try {
@@ -83,20 +97,17 @@ const Settings = () => {
       >
         <IonContent>
           <IonList>
-            <IonItem button={true} detail={false}>
-              <IonSegment value={t('mainnet')}>
-                <IonSegmentButton
-                  value={t('testnet')}
-                  disabled
-                  style={{ display: 'none' }}
-                >
-                  <IonLabel>Testnet</IonLabel>
-                </IonSegmentButton>
-                <IonSegmentButton value={t('mainnet')}>
-                  <IonLabel>Mainnet</IonLabel>
-                </IonSegmentButton>
-              </IonSegment>
-            </IonItem>
+          <IonItem button={true} detail={false}>
+            <IonSegment value={network} onIonChange={e => handleNetworkChange(e.detail.value!)}>
+              <IonSegmentButton value="mainnet">
+                <IonLabel>Mainnet</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="testnet">
+                <IonLabel>Testnet</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
+          </IonItem>
+
             <IonItem button={true} detail={false}>
               <IonSegment value={currency}>
                 <IonSegmentButton value="usd" onClick={() => setCurr('usd')}>

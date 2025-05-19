@@ -1,18 +1,22 @@
+import useCloreState from './use-clore-state';
 import axios from 'axios';
 
 export default async function useClorePrice() {
+  const network = useCloreState.getState().network;
+
+  const priceApiBase =
+    network === 'mainnet'
+      ? 'https://cors_everywhere_blockbook.clore.ai'
+      : 'http://155.138.230.177:443';
+
   try {
     return await axios
-      .get('https://cors_everywhere_blockbook.clore.ai/price_api')
+      .get(`${priceApiBase}/price_api`)
       .then(response => {
         return response.data['clore-ai'];
       })
-      .catch(error => {
-        // console.log(error);
-        return 0;
-      });
-  } catch (error) {
-    // console.log(error);
+      .catch(() => 0);
+  } catch {
     return 0;
   }
 }

@@ -29,6 +29,7 @@ const WalletManager = () => {
   const [walletName, setWalletName] = useState('');
   const wallets = useCloreState.getState().wallets;
   const router = useIonRouter();
+  const currentNetwork = useCloreState.getState().network as 'mainnet' | 'testnet';
 
   const addNewWallet = async (password: string) => {
     if (walletName) {
@@ -111,7 +112,7 @@ const WalletManager = () => {
                           className="ion-padding-vertical w-full"
                           style={{ fontSize: '0.85rem' }}
                         >
-                          {wallet.address}
+                          {wallet.addresses[currentNetwork]}
                         </IonCol>
                       </IonRow>
                     </IonGrid>
