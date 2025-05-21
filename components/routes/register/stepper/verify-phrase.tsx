@@ -10,6 +10,7 @@ import {
   IonText,
   IonModal,
   IonCheckbox,
+  useIonRouter,
 } from '@ionic/react';
 import React, { useMemo, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -24,6 +25,7 @@ import isBiometric, {
   saveBiometric,
   verifyBiometric,
 } from '../../utils/biometric';
+import { EndPoints } from 'components/router/config';
 const v = new Validation();
 
 interface IProps {
@@ -50,6 +52,7 @@ const defaultValues: TState = {
 function VerifyPhrase(props: IProps) {
   const { t } = useTranslation();
   const { showToast } = useToast();
+  const router = useIonRouter();
   const { mnemonic, recover, recoverMnemonic, handleNext } = props;
   const [loading, dismissLoading] = useIonLoading();
   const [showPass, setShowPass] = useState(true);
@@ -61,6 +64,7 @@ function VerifyPhrase(props: IProps) {
   const [isAvailable, setAvailable] = useState(false);
   const [useBiometric, setUseBiometric] = useState(false);
   // const [proceedIsDisabled, setProceedIsDisabled] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setPresentingElement(page.current);
@@ -189,8 +193,13 @@ function VerifyPhrase(props: IProps) {
 
   const handleCreateWallet = async () => {
     // setProceedIsDisabled(true);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     const isValid = await checkInputs();
-    if (!isValid) return;
+    if (!isValid) {
+      setIsSubmitting(false);
+      return;
+    }
 
     await loading({
       message: `Generating wallet, please wait...`,
@@ -201,15 +210,21 @@ function VerifyPhrase(props: IProps) {
     });
 
     setTimeout(async () => {
-      const wallet = await createWallet(
-        getValues().name,
-        recover ? recoverMnemonic : mnemonic,
-        getValues().password,
-      );
-
-      await dismissLoading();
-      // await closeNoticeModal();
-      handleNext();
+      try {
+        const wallet = await createWallet(
+          getValues().name,
+          recover ? recoverMnemonic : mnemonic,
+          getValues().password,
+        );
+        await dismissLoading();
+        router.push(EndPoints.auth.dashboard);
+      } catch (err) {
+        await dismissLoading();
+        showToast('Error', 'Failed to create wallet', 'danger');
+        console.error('Wallet creation error:', err);
+      } finally {
+        setIsSubmitting(false);
+      }
     }, 1000);
   };
 

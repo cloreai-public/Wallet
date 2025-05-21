@@ -28,6 +28,7 @@ import 'swiper/css/navigation';
 // Clore Wallet Lug
 import { createMnemonic } from 'components/hooks/use-clore-state';
 import useCloreState from 'components/hooks/use-clore-state';
+import { State, Wallet } from 'components/constants/types';
 
 let mnemonic = createMnemonic();
 
@@ -62,6 +63,19 @@ const CreateStep = () => {
     }
     // initial check
     checkForRecovery();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = useCloreState.subscribe(
+      (state: State) => state.wallets,
+      (wallets: Wallet[]) => {
+        if (wallets && wallets.length > 0) {
+          router.push(EndPoints.auth.dashboard);
+        }
+      }
+    );
+  
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
