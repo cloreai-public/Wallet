@@ -50,7 +50,7 @@ const WalletList = (props: IUid) => {
             },
             data: {
               action: 'select',
-              address: w.address,
+              address: w.addresses,
             },
           })),
           {
