@@ -60,7 +60,7 @@
     "bitcoinjs-message": "2.2.0",
     "buffer": "6.0.3",
     "classnames": "2.5.1",
-    "clore-lib": "git@github.com:Corey-Code/clore-lib.git",
+    "clore-lib": "git@github.com:Clore-ai/clore-lib.git",
     "coinkey": "3.0.0",
     "crypto-browserify": "3.12.0",
     "crypto-js": "4.2.0",
