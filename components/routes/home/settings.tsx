@@ -98,7 +98,7 @@ const Settings = () => {
         <IonContent>
           <IonList>
           <IonItem button={true} detail={false}>
-            <IonSegment value={network} onIonChange={e => handleNetworkChange(e.detail.value!)}>
+            <IonSegment value={network} onIonChange={e => handleNetworkChange(e.detail.value as string)}>
               <IonSegmentButton value="mainnet">
                 <IonLabel>Mainnet</IonLabel>
               </IonSegmentButton>
