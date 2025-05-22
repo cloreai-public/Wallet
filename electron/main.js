@@ -21,7 +21,7 @@ const createWindow = () => {
       nodeIntegration: false,
     },
   });
-  // win.webContents.openDevTools(); // force open DevTools
+  win.webContents.openDevTools(); // force open DevTools
 
   if (app.isPackaged) {
     appServe(win).then(() => {

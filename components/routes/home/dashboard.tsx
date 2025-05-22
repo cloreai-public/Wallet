@@ -50,41 +50,43 @@ const Dashboard = () => {
   const network = useCloreState((state: { network: string }) => state.network); // 'mainnet' or 'testnet'
 
   async function getCurrentBalance() {
-    setLoaded(false);
-  
+    const { activeWallet, network } = useCloreState.getState(); 
     const currentAddress = activeWallet?.addresses?.[network];
-    
-    if (currentAddress) {
-      const data = await bb.getWalletData(currentAddress);
-      setLoaded(true);
-      try {
-        if ('balance' in data && data.balance) {
-          setBalance(data.balance);
+    console.log('Fetching balance for:', currentAddress);
+    console.log('currentAddress', currentAddress);
   
-          const wallets = useCloreState.getState().wallets;
-          const idx = wallets.findIndex(
-            (w: { addresses: { [x: string]: any } }) => w.addresses[network] === currentAddress
-          );
-          if (idx !== -1) {
-            wallets[idx].balance = data.balance;
-            wallets[idx].txs = data.txs;
-            updateWallets(wallets);
-          }
+    if (!currentAddress) return;
+  
+    setLoaded(false); // Move this to top and outside any async calls
+  
+    try {
+      const data = await bb.getWalletData(currentAddress);
+      console.log('data', data);
+  
+      if ('balance' in data && data.balance != null) {
+        setBalance(data.balance);
+        setLoaded(true); 
+  
+        const wallets = useCloreState.getState().wallets;
+        const idx = wallets.findIndex((w: any) => w.addresses[network] === currentAddress);
+        if (idx !== -1) {
+          wallets[idx].balance = data.balance;
+          wallets[idx].txs = data.txs;
+          updateWallets(wallets);
         }
-      } catch (e) {
-        console.error(e);
-        setLoaded(true);
+      } else {
+        setLoaded(true); 
       }
+    } catch (e) {
+      console.error(e);
+      setLoaded(true); 
     }
   }
   
 
   useEffect(() => {
     // if no address then confirm there is a logged in user
-    const user = useCloreState.getState().user;
-    if (!user) {
-      router.push(EndPoints.register);
-    }
+   
     getCurrentBalance();
     let intervalId = setInterval(getCurrentBalance, 1000 * 60 * 5);
     return () => {
@@ -93,11 +95,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const user = useCloreState.getState().user;
-    if (!user) {
-      router.push(EndPoints.register);
-      return;
-    }
+   
     getCurrentBalance();
   }, [network]);
   
