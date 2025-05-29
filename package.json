@@ -4,7 +4,7 @@
   "author": "Clore Team <marketing@clore.ai>",
   "homepage": "https://clore.ai",
   "description": "Clore.ai light wallet supporting multiple wallets, sending, storing, and Proof of Holdings Signatures.",
-  "version": "2.0.1-alpha",
+  "version": "2.0.2-alpha",
   "private": true,
   "engines": {
     "node": ">=20.0"
