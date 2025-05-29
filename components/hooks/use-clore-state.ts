@@ -1,5 +1,6 @@
 import bitgo from 'clore-lib';
 import bitcoinMessage from 'bitcoinjs-message';
+import ops from 'bitcoin-ops';
 const CoinKey = require('coinkey');
 
 import * as bip39 from '@scure/bip39';
@@ -38,6 +39,27 @@ function getBitgoNetwork() {
   const net = useCloreState.getState().network;
   return bitgo.networks[net === 'testnet' ? 'cloreaiTestnet' : 'cloreai'];
 }
+
+function createColdStakingScript(stakerPubKeyHash: Buffer, ownerPubKeyHash: Buffer): Buffer {
+  if (stakerPubKeyHash.length !== 20 || ownerPubKeyHash.length !== 20) {
+    throw new Error('Invalid pubKeyHash length');
+  }
+
+  return bitgo.script.compile([
+    0x76,                // OP_DUP
+    0xa9,                // OP_HASH160
+    0x7b,                // OP_ROT
+    0x63,                // OP_IF
+    0xd2,                // OP_CHECKCOLDSTAKEVERIFY
+    stakerPubKeyHash,    // <staker>
+    0x67,                // OP_ELSE
+    ownerPubKeyHash,     // <owner>
+    0x68,                // OP_ENDIF
+    0x88,                // OP_EQUALVERIFY
+    0xac                 // OP_CHECKSIG
+  ]);
+}
+
 
 async function getHDNode(
   mnemonic: string,
@@ -231,6 +253,186 @@ export async function buildTransaction(
     return false;
   }
 }
+
+export async function buildStakeTransaction(
+  password: string,
+  amount: number,
+  ownerAddress: string,
+  stakerAddress: string,
+  fee?: number,
+) {
+  try {
+    const state = useCloreState.getState();
+    const currentNetwork = state.network;
+    const fromAddress = state.activeWallet.addresses[currentNetwork];
+    const walletIndex = state.activeWallet.index;
+
+    const mnemonic = await decrypt(state.encryptedMnemonic, password, state.mnemonicSalt);
+    if (!mnemonic) return false;
+
+    const node = await getHDNode(mnemonic, walletIndex, currentNetwork);
+    if (!node) return false;
+
+    if (!fee) fee = 1000000;
+
+    const childNode = node.root.derivePath(node.derivePath);
+    const satAmount = Math.floor(amount * 1e8);
+    const totalWithFee = satAmount + fee;
+
+    const utxos = await new Blockbook().getUnspent(fromAddress);
+    const txb = new bitgo.TransactionBuilder(getBitgoNetwork(), fee);
+
+    // Extract hash160 (PubKeyHash) from Base58 address
+    const ownerHash = bitgo.address.fromBase58Check(ownerAddress).hash;
+    const stakerHash = bitgo.address.fromBase58Check(stakerAddress).hash;
+
+    const coldStakeScript = createColdStakingScript(stakerHash, ownerHash);
+    console.log('coldStakeScript', coldStakeScript);
+
+    let totalInput = 0;
+    for (let i = 0; i < utxos.length; i++) {
+      const utxo = utxos[i];
+      txb.addInput(utxo.txid, utxo.vout);
+      totalInput += Number(utxo.value);
+      if (totalInput >= totalWithFee) break;
+    }
+
+    if (totalInput < totalWithFee) {
+      throw new Error(
+        `Insufficient balance: available ${totalInput / 1e8} CLORE, needed ${(totalWithFee / 1e8).toFixed(8)} CLORE`
+      );
+    }
+    
+    const change = totalInput - totalWithFee;
+    if (change > 0) {
+      txb.addOutput(fromAddress, change);
+    }
+
+    txb.addOutput(coldStakeScript, satAmount);
+
+
+    for (let i = 0; i < txb.inputs.length; i++) {
+      txb.sign(
+        i,
+        childNode.keyPair,
+        null,
+        bitgo.Transaction.SIGHASH_ALL,
+        Number(utxos[i].value)
+      );
+    }
+
+    return txb.build().toHex();
+  } catch (error: any) {
+    console.log('Error building stake tx:', error.message || error);
+    throw new Error(error.message || 'Unknown error building transaction');
+  }
+}
+
+const isColdStakingScript = (hex: string) => {
+  // Match Clore cold staking script pattern:
+  // OP_DUP (76), OP_HASH160 (a9), OP_ROT (7b), OP_IF (63), OP_CHECKCOLDSTAKEVERIFY (d2)
+  return hex.startsWith('76a97b63d2');
+};
+
+export async function buildUnstakeTransaction(
+  password: string,
+  ownerAddress: string,
+  fee?: number,
+) {
+  try {
+    const state = useCloreState.getState();
+    const currentNetwork = state.network;
+    const walletIndex = state.activeWallet.index;
+
+    const mnemonic = await decrypt(state.encryptedMnemonic, password, state.mnemonicSalt);
+    if (!mnemonic) return false;
+
+    const node = await getHDNode(mnemonic, walletIndex, currentNetwork);
+    if (!node) return false;
+
+    if (!fee) fee = 1000000;
+
+    const childNode = node.root.derivePath(node.derivePath);
+    const keyPair = childNode.keyPair;
+    const ownerHash = bitgo.address.fromBase58Check(ownerAddress).hash;
+
+    const blockbook = new Blockbook();
+    const utxos = await blockbook.getUnspent(ownerAddress);
+
+    // Filter only cold staking UTXOs
+    const coldUtxos: any[] = [];
+
+    for (const utxo of utxos) {
+      console.log("utxo", utxo);
+      const tx = await blockbook.getTransaction(utxo.txid);
+      console.log('tx', tx);
+      
+      for (const vout of tx.vout) {
+        if (isColdStakingScript(vout.hex)) {
+          coldUtxos.push({
+            ...utxo,
+            value: parseInt(vout.value),
+            scriptHex: vout.hex,
+          });
+        }
+      }
+    }
+
+    if (!coldUtxos.length) throw new Error('No cold staking UTXOs found');
+    console.log('coldUtxos', coldUtxos);
+    const txb = new bitgo.TransactionBuilder(getBitgoNetwork(), fee);
+
+    let totalInput = 0;
+    for (const utxo of coldUtxos) {
+      txb.addInput(utxo.txid, utxo.vout);
+      totalInput += utxo.value;
+    }
+    console.log('totalInput', totalInput);
+    if (totalInput <= fee) {
+      throw new Error(`Insufficient cold staking balance to unstake after fee.`);
+    }
+
+    const sendAmount = totalInput - fee;
+    console.log('sendAmount', sendAmount);
+    txb.addOutput(ownerAddress, sendAmount);
+
+    // Rebuild cold staking script for signing
+   const coldScript = createColdStakingScript(ownerHash, ownerHash);    
+   console.log('coldscript', coldScript);
+    // const tx = txb.buildIncomplete();
+    for (let i = 0; i < coldUtxos.length; i++) {
+      console.log('check', i, keyPair.getPublicKeyBuffer(), bitgo.Transaction.SIGHASH_ALL, coldUtxos[i].value);
+      txb.sign(
+        i,
+        keyPair,
+        null,
+        bitgo.Transaction.SIGHASH_ALL,
+        Number(coldUtxos[i].value),
+      );
+      // const sighash = tx.hashForSignature(i, coldScript, bitgo.Transaction.SIGHASH_ALL);
+      // console.log('sighash', sighash);
+      // const signature = keyPair.sign(sighash).toScriptSignature(bitgo.Transaction.SIGHASH_ALL);
+      // console.log('signature', signature);
+
+      // const scriptSig = bitgo.script.compile([
+      //   signature,
+      //   keyPair.getPublicKeyBuffer(),
+      //   ops.OP_FALSE
+      // ]);
+
+
+      // tx.setInputScript(i, scriptSig);
+
+    }
+    // console.log('txb', txb.build().toHex());
+    return txb.build().toHex();
+    // return tx.toHex();
+  } catch (error: any) {
+    console.error('Error building unstake tx:', error.message || error);
+    throw new Error(error.message || 'Unknown error building unstake transaction');
+  }
+}
+
 
 export async function buildMessage(message: string, password: string) {
   try {

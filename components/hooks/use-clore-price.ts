@@ -6,8 +6,8 @@ export default async function useClorePrice() {
 
   const priceApiBase =
     network === 'mainnet'
-      ? 'https://cors_everywhere_blockbook.clore.ai'
-      : 'http://155.138.230.177:443';
+      ? 'https://cors_everywhere_blockbook.clore.ai:443'
+      : 'https://cors_everywhere_blockbook.clore.ai:443';
 
   try {
     return await axios

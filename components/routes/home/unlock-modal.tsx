@@ -65,6 +65,7 @@ const UnlockModal = (props: UnlockModalProps) => {
         ? String(input.current?.value)
         : '';
     if (!password) {
+      await dismissLoading();  // <— add this
       setError('Correct Password Is Required');
       return;
     }

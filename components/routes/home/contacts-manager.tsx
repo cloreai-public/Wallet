@@ -29,16 +29,19 @@ const ContactsManager = () => {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [contacts, setContacts] = useState(useCloreState.getState().contacts);
+  const currentNetwork = useCloreState.getState().network as 'mainnet' | 'testnet';
+
 
   const router = useIonRouter();
 
   const addNewContact = async () => {
-    const { error, message } = v.isAddress(address);
+    
+    const { error, message } = v.isAddress(address, currentNetwork);
     if (error) {
       setAddressError(message);
       return;
-    }
-
+    }  
+    
     if (name.length > 0) {
       addContact(name, address);
       setName('');

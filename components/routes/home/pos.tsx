@@ -15,13 +15,19 @@ import {
   IonButton,
   useIonRouter,
   IonInput,
+  useIonLoading,
 } from '@ionic/react';
-import useCloreState from 'components/hooks/use-clore-state';
+import useCloreState, { buildUnstakeTransaction } from 'components/hooks/use-clore-state';
 import { Wallet } from 'components/constants/types';
 import { useTranslation } from 'react-i18next';
 import React, { useEffect, useState } from 'react';
-import { useStakingStatus } from 'components/hooks/use-staking-status';
+import { Blockbook } from 'components/hooks/use-blockbook-explorer';
 import { useToast } from 'components/router/toast-context';
+import { buildStakeTransaction } from 'components/hooks/use-clore-state';
+import { Validation } from 'components/hooks/use-validation';
+import { EndPoints } from 'components/router/config';
+import UnlockModal from 'components/routes/home/unlock-modal';
+const v = new Validation();
 
 const Pos = () => {
   const { t } = useTranslation();
@@ -30,98 +36,173 @@ const Pos = () => {
   const activeWallet = useCloreState(
     (state: { activeWallet: Wallet }) => state.activeWallet,
   );
+
+  const currentNetwork = useCloreState.getState().network as 'mainnet' | 'testnet';
+  const wallets = useCloreState.getState().wallets;
   const router = useIonRouter();
-  const { status, loading } = useStakingStatus();
   const [amount, setAmount] = useState(0);
   const [error, setError] = useState('');
+  const [amountError, setAmountError] = useState('');
   const [address, setAddress] = useState('');
+  const [loading, dismissLoading] = useIonLoading();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [addressLabel, setAddressLabel] = useState('');
   const [coldStakingBalance, setColdStakingBalance] = useState<number>(0);
+  const [modalAction, setModalAction] = useState<'stake' | 'unstake'>('stake');
+
 
   const setContact = (contact: any) => {
     setAddress(contact.address);
     setAddressLabel(` (${contact.name})`);
   };
 
-  useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const accountAddress = await (window as any).electronAPI.getAccountAddress(["myaccount"]);
-        const myBalance = status?.utxos
-          ?.filter((utxo: any) => utxo['cold-staker'] === accountAddress)
-          ?.reduce((total: number, utxo: any) => total + parseFloat(utxo.amount), 0) || 0;
-        console.log(`Cold staking balance for ${accountAddress}: ${myBalance}`);
-        setColdStakingBalance(myBalance);
-      } catch (err) {
-        console.error('Error fetching cold staking balance:', err);
-        setColdStakingBalance(0);
-      }
-    };
-  
-    if (status) fetchBalance();
-  }, [status]);
-  
-  const handleDelegateStake = async (flag: number) => {
-    setError('');
+  const isColdStakingScript = (hex: string) => {
+    // Match Clore cold staking script pattern:
+    // OP_DUP (76), OP_HASH160 (a9), OP_ROT (7b), OP_IF (63), OP_CHECKCOLDSTAKEVERIFY (d2)
+    return hex.startsWith('76a97b63d2');
+  };
 
-    if (amount <= 0) {
-      showToast('Error', t('amount is required'), 'danger');
-      return;
-    }
-
+  const fetchColdStakingBalance = async (ownerAddress: string) => {
     try {
-      const accountAddress = await (window as any).electronAPI.getAccountAddress(["myaccount"]);
-      const ownerAddress = await (window as any).electronAPI.getAccountAddress([""]);
-      console.log('accountAddress', accountAddress);
-      console.log('ownerAddress', ownerAddress);
-
-      if (flag == 1) {
-        const params = [accountAddress, amount];
-        const result = await (window as any).electronAPI.delegateStake(params);
-
-        if (result?.error) {
-          showToast('Error', t('Delegation failed'), 'danger');
-          return;
+      const utxos = await new Blockbook().getUnspent(ownerAddress);
+      console.log('utxos', utxos);
+      let total = 0;
+  
+      for (const utxo of utxos) {
+        const tx = await new Blockbook().getTransaction(utxo.txid);
+        console.log('tx', tx.vout);
+        for (const vout of tx.vout) {
+          console.log('vout', vout.hex);
+          if (isColdStakingScript(vout.hex)) {
+            total += parseFloat(vout.value);
+          }
         }
-        console.log('result', result);
-
-        // Show success toast
-        showToast(
-          'Signature',
-          `${t('Delegation successful')}\nTXID: ${result.txid}`,
-          'success',
-        );
-      } else {
-        const result = await (window as any).electronAPI.sendToAddress([
-          ownerAddress,
-          amount,
-        ]);
-
-        if (result?.error) {
-          showToast(
-            'Error',
-            t('Unstaking failed') + `: ${result.error.message || result.error}`,
-            'danger',
-          );
-          return;
-        }
-
-        console.log('Unstaking result:', result);
-        showToast(
-          'Success',
-          `${t('Unstaking successful')}\nTXID: ${result}`,
-          'success',
-        );
       }
-
-      // Optionally clear input
-      setAmount(0);
+  
+      setColdStakingBalance(total/1e8);
     } catch (err) {
-      showToast('Error', t('An unexpected error occurred'), 'danger');
-      console.error(err);
+      console.error('Failed to fetch cold staking balance:', err);
+      showToast(t('Failed to fetch staking balance'), '', 'danger');
     }
   };
 
+  useEffect(() => {
+    const ownerAddr = wallets[0].addresses[currentNetwork];
+    setAddress(ownerAddr);
+    fetchColdStakingBalance(ownerAddr);
+    console.log('wallets', ownerAddr);
+  },[]);
+
+  const handleOpenModal = (action: 'stake' | 'unstake') => {
+    const { error: addressError, message: addressMessage } = v.isAddress(address, currentNetwork);
+    if (addressError) {
+      setError(addressMessage);
+      console.log('message', address, addressMessage);
+      return;
+    }
+  
+    if (action === 'stake' && (!amount || isNaN(Number(amount)) || Number(amount) <= 0)) {
+      setAmountError(t('Invalid Amount'));
+      return;
+    }
+  
+    setModalAction(action);
+    setIsModalOpen(true);
+  };
+  
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+  const handleSendStakeTransaction = async (password: string) => {
+    try {
+      const { error: ownerError, message: ownerMessage } = v.isAddress(address, currentNetwork);
+      if (ownerError) {
+        setError(ownerMessage);
+        return;
+      }
+  
+      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+        setError(t('Invalid staking amount'));
+        return;
+      }
+  
+      await loading({
+        message: t('Waiting for CLORE Blockchain'),
+        animated: true,
+      });
+  
+      // Build cold staking transaction
+      const hex = await buildStakeTransaction(password, amount, address, address);
+      console.log('hex ', hex);
+      if (!hex) {
+        await dismissLoading();
+        showToast(t('Transaction creation failed'), '', 'danger');
+        return;
+      }
+  
+      // Send transaction
+      const response = await new Blockbook().sendTransaction(hex);
+      await dismissLoading();
+  
+      if (response.error) {
+        setError(t('Transaction Failed'));
+        return;
+      }
+  
+      showToast(t('Stake Transaction Complete'), `${response.result}`, 'success');
+      await fetchColdStakingBalance(address);
+      router.push(EndPoints.auth.pos);
+    } catch (error: any) {
+      await dismissLoading();
+      const errMsg = error?.message || t('Unknown transaction error');
+      showToast(t('Stake Failed'), errMsg, 'danger'); 
+      setError(t('Unexpected error occurred'));
+    }
+  };
+
+  const handleSendUnStakeTransaction = async (password: string) => {
+    try {
+      const { error: ownerError, message: ownerMessage } = v.isAddress(address, currentNetwork);
+      if (ownerError) {
+        setError(ownerMessage);
+        return;
+      }
+  
+      await loading({
+        message: t('Waiting for CLORE Blockchain'),
+        animated: true,
+      });
+  
+      // Build cold staking transaction
+      const hex = await buildUnstakeTransaction(password, address);
+      console.log('hex ', hex);
+      if (!hex) {
+        await dismissLoading();
+        showToast(t('Transaction creation failed'), '', 'danger');
+        return;
+      }
+  
+      // Send transaction
+      const response = await new Blockbook().sendTransaction(hex);
+      await dismissLoading();
+  
+      if (response.error) {
+        setError(t('Transaction Failed'));
+        return;
+      }
+  
+      showToast(t('UnStake Transaction Complete'), `${response.result}`, 'success');
+      await fetchColdStakingBalance(address);
+      router.push(EndPoints.auth.pos);
+    } catch (error: any) {
+      await dismissLoading();
+      const errMsg = error?.message || t('Unknown transaction error');
+      showToast(t('UnStake Failed'), errMsg, 'danger'); 
+      setError(t('Unexpected error occurred'));
+    }
+  };
+  
+  
   return (
     <IonPage>
       <IonContent className="ion-padding" fullscreen scrollY={false}>
@@ -150,9 +231,9 @@ const Pos = () => {
                         setAmount(Number((e.target as HTMLInputElement).value))
                       }
                     />
-                    {error ? (
+                    {amountError ? (
                       <div className="text-[#ff3d3d] font-bold text-xs">
-                        {error || t('Amount Is Required')}
+                        {amountError}
                       </div>
                     ) : null}
                   </IonCol>
@@ -169,12 +250,18 @@ const Pos = () => {
               <IonGrid className="m-[0px] pt-[0px]">
                 <IonRow>
                   <IonCol size="6">
+                    <UnlockModal
+                      isOpen={isModalOpen}
+                      onClose={handleCloseModal}
+                      onSubmit={modalAction === 'stake' ? handleSendStakeTransaction : handleSendUnStakeTransaction}
+                    />
                     <div className="ion-activatable btn w-full">
                       <IonButton
+                        id="popover-button"
+                        onClick={() => handleOpenModal('stake')}
                         className="w-full footer-button"
-                        onClick={() => handleDelegateStake(1)}
                       >
-                        <span>{t('Staking')}</span>
+                        <span>{t('Stake')}</span>
                       </IonButton>
                     </div>
                   </IonCol>
@@ -183,7 +270,7 @@ const Pos = () => {
                       <IonButton
                         id="popover-button"
                         className="w-full footer-button"
-                        onClick={() => handleDelegateStake(0)}
+                        onClick={() => handleOpenModal('unstake')}
                       >
                         <span>{t('UnStaking')}</span>
                       </IonButton>
@@ -195,7 +282,7 @@ const Pos = () => {
             <div className="my-1 w-full">
               <IonGrid>
                 <IonRow>
-                  <IonCol className="ion-padding-vertical">
+                  {/* <IonCol className="ion-padding-vertical">
                     <IonInput
                       mode="md"
                       fill="outline"
@@ -213,7 +300,7 @@ const Pos = () => {
                         {error || t('Address Is Required')}
                       </div>
                     ) : null}
-                  </IonCol>
+                  </IonCol> */}
                 </IonRow>
               </IonGrid>
             </div>
@@ -233,7 +320,7 @@ const Pos = () => {
                       </IonButton>
                     </div>
                   </IonCol>
-                  <IonCol size="6">
+                  {/* <IonCol size="6">
                     <div className="ion-activatable btn w-full ion-margin-vertical">
                       <IonButton
                         className="w-full footer-button"
@@ -244,7 +331,7 @@ const Pos = () => {
                         <span>{t('Delegate Staking')}</span>
                       </IonButton>
                     </div>
-                  </IonCol>
+                  </IonCol> */}
                 </IonRow>
               </IonGrid>
             </div>

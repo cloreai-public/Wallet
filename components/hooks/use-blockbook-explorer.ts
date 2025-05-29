@@ -52,7 +52,7 @@ export class Blockbook {
     const url =
       network === 'mainnet'
         ? 'https://cors_everywhere_blockbook.clore.ai:443'
-        : 'https://pos-testnet.corey-code.com'; // testnet IP
+        : 'https://pos-testnet.clore.ai'; // testnet IP
 
     console.log('[Blockbook] Network:', network);
     console.log('[Blockbook] Base URL:', url);
@@ -103,6 +103,19 @@ export class Blockbook {
     } catch (error) {
       console.error('[Blockbook] Error fetching UTXOs:', error);
       return [];
+    }
+  }
+
+  async getTransaction(txid: string) {
+    const url = `${this.baseUrl}/api/v2/tx/${txid}`;
+    console.log('[Blockbook] GET TX URL:', url);
+  
+    try {
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      console.error('[Blockbook] Error fetching transaction:', error);
+      throw error;
     }
   }
 

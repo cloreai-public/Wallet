@@ -34,6 +34,7 @@ const Send = () => {
   const { t } = useTranslation();
 
   const [error, setError] = useState('');
+  const [amountError, setAmountError] = useState('');
   const { showToast } = useToast();
   const [loading, dismissLoading] = useIonLoading();
   const [amount, setAmount] = useState(0);
@@ -42,9 +43,21 @@ const Send = () => {
   const activeWallet = useCloreState(
     (state: { activeWallet: any }) => state.activeWallet,
   );
+  const currentNetwork = useCloreState.getState().network as 'mainnet' | 'testnet';
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
+    const { error: addressError, message: addressMessage } = v.isAddress(address, currentNetwork);
+    if (addressError) {
+      setError(addressMessage);
+      return;
+    }
+
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      setAmountError(t('Invalid Amount'));
+      return;
+    }
+
     setIsModalOpen(true);
   };
 
@@ -71,7 +84,7 @@ const Send = () => {
 
   const handleSendTransaction = async (password: string) => {
     try {
-      const { error, message } = v.isAddress(address);
+      const { error, message } = v.isAddress(address, currentNetwork);
       if (error) {
         setError(message);
         return;
@@ -172,9 +185,9 @@ const Send = () => {
                         setAmount(Number((e.target as HTMLInputElement).value))
                       }
                     />
-                    {error ? (
+                    {amountError ? (
                       <div className="text-[#ff3d3d] font-bold text-xs">
-                        {error || t('Amount Is Required')}
+                        {amountError}
                       </div>
                     ) : null}
                   </IonCol>
@@ -206,15 +219,15 @@ const Send = () => {
                     </div>
                   </IonCol>
                   <IonCol size="6">
-                    <div className="ion-activatable btn w-full">
-                      <IonButton
-                        id="popover-button"
-                        onClick={handleOpenModal}
-                        className="w-full footer-button"
-                      >
-                        <span>{t('Send')}</span>
-                      </IonButton>
-                    </div>
+                      <div className="ion-activatable btn w-full">
+                        <IonButton
+                          id="popover-button"
+                          onClick={handleOpenModal}
+                          className="w-full footer-button"
+                        >
+                          <span>{t('Send')}</span>
+                        </IonButton>
+                      </div>
                   </IonCol>
                 </IonRow>
               </IonGrid>

@@ -32,10 +32,18 @@ export class Validation {
       };
   }
 
-  isAddress(address: string) {
-    const validAddress = new RegExp('^[A][a-km-zA-HJ-NP-Z1-9]{25,34}$');
-    if (validAddress.test(address)) return { error: false, message: '' };
-    else return { error: true, message: 'Invalid Address' };
+  isAddress(address: string, network: 'mainnet' | 'testnet') {
+    const regexMap = {
+      mainnet: /^[A][a-km-zA-HJ-NP-Z1-9]{25,34}$/,
+      testnet: /^[J][a-km-zA-HJ-NP-Z1-9]{25,34}$/,
+    };
+  
+    const regex = regexMap[network];
+    if (regex.test(address)) {
+      return { error: false, message: '' };
+    } else {
+      return { error: true, message: `Invalid ${network} address` };
+    }
   }
 
   isName(name: string) {

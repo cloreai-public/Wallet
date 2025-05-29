@@ -40,7 +40,7 @@ const Dashboard = () => {
   const currency = useCloreState((state: { currency: any }) => state.currency);
   const price = useCloreState(
     (state: { prices: { [x: string]: any } }) =>
-      state.prices[currency as keyof typeof state.prices],
+      state?.prices[currency as keyof typeof state.prices],
   );
   const [balance, setBalance] = useState(
     useCloreState(
@@ -149,7 +149,7 @@ const Dashboard = () => {
             <div className="flex justify-center items-center w-2/3 ">
               <IonText className="text-2xl">
                 {loaded &&
-                  `${(balance * price).toFixed(currency === 'btc' ? 8 : 2)} ${currency.toUpperCase()}`}
+                  `${(balance * (price ?? 0)).toFixed(currency === 'btc' ? 8 : 2)} ${currency.toUpperCase()}`}
                 {!loaded && (
                   <IonSkeletonText animated={true} style={{ width: '40px', height: '20px' }} />
                 )}
