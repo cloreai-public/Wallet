@@ -268,7 +268,7 @@ const Pos = () => {
                         className="w-full footer-button"
                         onClick={() => handleOpenModal('unstake')}
                       >
-                        <span>{t('UnStaking')}</span>
+                        <span>{t('UnStake All')}</span>
                       </IonButton>
                     </div>
                   </IonCol>
