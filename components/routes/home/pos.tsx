@@ -17,7 +17,7 @@ import {
   IonInput,
   useIonLoading,
 } from '@ionic/react';
-import useCloreState, { buildUnstakeTransaction } from 'components/hooks/use-clore-state';
+import useCloreState, { buildUnstakeTransaction, getUnspentStakes } from 'components/hooks/use-clore-state';
 import { Wallet } from 'components/constants/types';
 import { useTranslation } from 'react-i18next';
 import React, { useEffect, useState } from 'react';
@@ -62,21 +62,17 @@ const Pos = () => {
     return hex.startsWith('76a97b63d2');
   };
 
+  
+
   const fetchColdStakingBalance = async (ownerAddress: string) => {
     try {
-      const utxos = await new Blockbook().getUnspent(ownerAddress);
+      const utxos = await getUnspentStakes(ownerAddress);
       console.log('utxos', utxos);
       let total = 0;
   
       for (const utxo of utxos) {
-        const tx = await new Blockbook().getTransaction(utxo.txid);
-        console.log('tx', tx.vout);
-        for (const vout of tx.vout) {
-          console.log('vout', vout.hex);
-          if (isColdStakingScript(vout.hex)) {
-            total += parseFloat(vout.value);
-          }
-        }
+        console.log('utxo', utxo);
+        total += parseFloat(utxo.value);
       }
   
       setColdStakingBalance(total/1e8);

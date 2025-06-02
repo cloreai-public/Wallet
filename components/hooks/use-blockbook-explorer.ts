@@ -93,6 +93,21 @@ export class Blockbook {
     }
   }
 
+  async getAllTxs(address: string) {
+    let page = 1, pageSize = 1000, done = false;
+    let txs: any[] = [];
+    while (!done) {
+      const url = `${this.baseUrl}/api/v2/address/${address}?details=txs&page=${page}&pageSize=${pageSize}`;
+      const response = await axios.get(url);
+      const data = response.data;
+      if (!data.transactions || data.transactions.length === 0) break;
+      txs = txs.concat(data.transactions);
+      if (data.transactions.length < pageSize) break;
+      page++;
+    }
+    return txs;
+  }
+
   async getUnspent(address: string) {
     const url = `${this.baseUrl}/api/v2/utxo/${address}`;
     console.log('[Blockbook] GET UTXO URL:', url);

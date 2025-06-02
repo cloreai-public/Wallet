@@ -334,6 +334,46 @@ const isColdStakingScript = (hex: string) => {
   return hex.startsWith('76a97b63d2');
 };
 
+// Main function to get all unspent staked vouts for an address
+export async function getUnspentStakes(address: string) {
+  // 1. Fetch all transactions for the address
+  const allTxs = await new Blockbook().getAllTxs(address);
+
+  console.log('allTxs', allTxs);
+
+  // 2. Index all spends
+  const spentOutpoints = new Set();
+  for (const tx of allTxs) {
+    for (const vin of tx.vin) {
+      if (vin.txid !== undefined && vin.vout !== undefined) {
+        spentOutpoints.add(`${vin.txid}:${vin.vout}`);
+      }
+    }
+  }
+
+  // 3. Find staked outputs (your custom script)
+  const unspentStakes = [];
+  for (const tx of allTxs) {
+    for (let idx = 0; idx < tx.vout.length; idx++) {
+      const vout = tx.vout[idx];
+      // Your stake script matcher:
+      if (isColdStakingScript(vout.hex)) {
+        const outpoint = `${tx.txid}:${idx}`;
+        if (!spentOutpoints.has(outpoint)) {
+          unspentStakes.push({
+            txid: tx.txid,
+            vout: idx,
+            value: vout.value,
+            script: vout.hex
+          });
+        }
+      }
+    }
+  }
+
+  return unspentStakes;
+}
+
 export async function buildUnstakeTransaction(
   password: string,
   ownerAddress: string,
@@ -353,39 +393,21 @@ export async function buildUnstakeTransaction(
     if (!fee) fee = 1000000;
 
     const childNode = node.root.derivePath(node.derivePath);
-    const keyPair = childNode.keyPair;
-    const ownerHash = bitgo.address.fromBase58Check(ownerAddress).hash;
 
     const blockbook = new Blockbook();
-    const utxos = await blockbook.getUnspent(ownerAddress);
+    const coldutxos = await getUnspentStakes(ownerAddress);
 
+    console.log('coldutxos', coldutxos);
     // Filter only cold staking UTXOs
-    const coldUtxos: any[] = [];
-
-    for (const utxo of utxos) {
-      console.log("utxo", utxo);
-      const tx = await blockbook.getTransaction(utxo.txid);
-      console.log('tx', tx);
-      
-      for (const vout of tx.vout) {
-        if (isColdStakingScript(vout.hex)) {
-          coldUtxos.push({
-            ...utxo,
-            value: parseInt(vout.value),
-            scriptHex: vout.hex,
-          });
-        }
-      }
-    }
-
-    if (!coldUtxos.length) throw new Error('No cold staking UTXOs found');
-    console.log('coldUtxos', coldUtxos);
+    
+    if (!coldutxos.length) throw new Error('No cold staking UTXOs found');
+    console.log('coldutxos', coldutxos);
     const txb = new bitgo.TransactionBuilder(getBitgoNetwork(), fee);
 
     let totalInput = 0;
-    for (const utxo of coldUtxos) {
+    for (const utxo of coldutxos) {
       txb.addInput(utxo.txid, utxo.vout);
-      totalInput += utxo.value;
+      totalInput += Number(utxo.value);
     }
     console.log('totalInput', totalInput);
     if (totalInput <= fee) {
@@ -397,36 +419,33 @@ export async function buildUnstakeTransaction(
     txb.addOutput(ownerAddress, sendAmount);
 
     // Rebuild cold staking script for signing
-   const coldScript = createColdStakingScript(ownerHash, ownerHash);    
-   console.log('coldscript', coldScript);
-    // const tx = txb.buildIncomplete();
-    for (let i = 0; i < coldUtxos.length; i++) {
-      console.log('check', i, keyPair.getPublicKeyBuffer(), bitgo.Transaction.SIGHASH_ALL, coldUtxos[i].value);
-      txb.sign(
-        i,
-        keyPair,
-        null,
-        bitgo.Transaction.SIGHASH_ALL,
-        Number(coldUtxos[i].value),
-      );
-      // const sighash = tx.hashForSignature(i, coldScript, bitgo.Transaction.SIGHASH_ALL);
-      // console.log('sighash', sighash);
-      // const signature = keyPair.sign(sighash).toScriptSignature(bitgo.Transaction.SIGHASH_ALL);
-      // console.log('signature', signature);
+    const tx = txb.buildIncomplete();
+    for (let i = 0; i < coldutxos.length; i++) {
+      // Build the cold stake script for the input being spent
+      const utxo = coldutxos[i];
+      const ownerHash = bitgo.address.fromBase58Check(ownerAddress).hash;
+      console.log('ownerHash', ownerHash);
+      // If the staker and owner are different, you should use the actual UTXO script hashes
+      const coldScript = createColdStakingScript(ownerHash, ownerHash); // or use utxo.script
 
-      // const scriptSig = bitgo.script.compile([
-      //   signature,
-      //   keyPair.getPublicKeyBuffer(),
-      //   ops.OP_FALSE
-      // ]);
+      // Create the sighash for signing (make sure to use the correct value)
+      const keyPair = childNode.keyPair;
+      const value = Number(utxo.value);
 
+      const sighash = tx.hashForSignature(i, coldScript, bitgo.Transaction.SIGHASH_ALL);
+      const signature = keyPair.sign(sighash).toScriptSignature(bitgo.Transaction.SIGHASH_ALL);
 
-      // tx.setInputScript(i, scriptSig);
+      const scriptSig = bitgo.script.compile([
+        signature,
+        ops.OP_FALSE, // 0 for ELSE branch
+        keyPair.getPublicKeyBuffer(),
+      ]);
 
+      tx.setInputScript(i, scriptSig);
     }
     // console.log('txb', txb.build().toHex());
-    return txb.build().toHex();
-    // return tx.toHex();
+    // return txb.build().toHex();
+    return tx.toHex();
   } catch (error: any) {
     console.error('Error building unstake tx:', error.message || error);
     throw new Error(error.message || 'Unknown error building unstake transaction');
