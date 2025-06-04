@@ -50,7 +50,7 @@ app.whenReady().then(() => {
   ipcMain.handle('listColdUtxos', async () => {
     console.log('[MAIN] Received listColdUtxos call');
     try {
-      const response = await axios.post('http://155.138.230.177:4568/', {
+      const response = await axios.post('http://155.138.230.177:4569/', {
         jsonrpc: '1.0',
         id: 'wallet',
         method: 'listcoldutxos',

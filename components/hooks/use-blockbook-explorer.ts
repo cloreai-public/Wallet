@@ -1,5 +1,62 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import useCloreState from './use-clore-state';
+
+
+// export class RpcNode {
+//   url: string;
+//   user: string;
+//   pass: string;
+
+//   constructor({
+//     url = 'http://155.138.230.177:4569/', // or remote address if enabled
+//     user = 'abc',
+//     pass = 'abc',
+//   }: { url?: string; user?: string; pass?: string } = {}) {
+//     this.url = url;
+//     this.user = user;
+//     this.pass = pass;
+//   }
+
+//   async callRpcMethod(method: string, params: any[] = []) {
+//     const auth = Buffer.from(`${this.user}:${this.pass}`).toString('base64');
+//     const config: AxiosRequestConfig = {
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Authorization': `Basic ${auth}`,
+//       },
+//       timeout: 10_000, // 10 seconds
+//     };
+//     const body = {
+//       jsonrpc: '1.0',
+//       id: 'rpcnode',
+//       method,
+//       params,
+//     };
+
+//     try {
+//       const response = await axios.post(this.url, body, config);
+//       if (response.data.error) throw response.data.error;
+//       return response.data.result;
+//     } catch (e) {
+//       console.error(`[RPCNode] RPC error (${method}):`, e);
+//       throw e;
+//     }
+//   }
+
+//   async listColdUtxos() {
+//     return this.callRpcMethod('listcoldutxos');
+//   }
+
+//   // Add more methods as needed, e.g.:
+//   async getInfo() {
+//     return this.callRpcMethod('getinfo');
+//   }
+// }
+
+// USAGE EXAMPLE
+// const rpc = new RpcNode({ url: 'http://155.138.230.177:4569', user: 'abc', pass: 'abc' });
+// rpc.listColdUtxos().then(console.log).catch(console.error);
+
 
 // const ws = new WebSocket('wss://blockbook.clore.zelcore/');
 

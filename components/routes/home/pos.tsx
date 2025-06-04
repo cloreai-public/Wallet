@@ -66,16 +66,19 @@ const Pos = () => {
 
   const fetchColdStakingBalance = async (ownerAddress: string) => {
     try {
-      const utxos = await getUnspentStakes(ownerAddress);
+      const utxos = await window.electronAPI.listColdUtxos();
       console.log('utxos', utxos);
       let total = 0;
   
       for (const utxo of utxos) {
-        console.log('utxo', utxo);
-        total += parseFloat(utxo.value);
+        // Only add if the coin-owner matches the ownerAddress
+        console.log('utxo coin-owner', utxo['coin-owner']);
+        if (utxo['coin-owner'] === ownerAddress) {
+          total += parseFloat(utxo.amount); // amount is already in CLORE
+        }
       }
   
-      setColdStakingBalance(total/1e8);
+      setColdStakingBalance(total);
     } catch (err) {
       console.error('Failed to fetch cold staking balance:', err);
       showToast(t('Failed to fetch staking balance'), '', 'danger');
@@ -128,7 +131,8 @@ const Pos = () => {
       });
   
       // Build cold staking transaction
-      const hex = await buildStakeTransaction(password, amount, address, address);
+      const hex = await buildStakeTransaction(password, amount, address, "JGpYSh5FEdzQiYJNNKZgbBnG21FvcLM5Yc");
+      // const hex = await buildStakeTransaction(password, amount, address, address);
       console.log('hex ', hex);
       if (!hex) {
         await dismissLoading();
@@ -170,7 +174,8 @@ const Pos = () => {
       });
   
       // Build cold staking transaction
-      const hex = await buildUnstakeTransaction(password, address);
+      const hex = await buildUnstakeTransaction(password, address, "JGpYSh5FEdzQiYJNNKZgbBnG21FvcLM5Yc");
+      // const hex = await buildUnstakeTransaction(password, address, address);
       console.log('hex ', hex);
       if (!hex) {
         await dismissLoading();

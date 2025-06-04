@@ -377,6 +377,7 @@ export async function getUnspentStakes(address: string) {
 export async function buildUnstakeTransaction(
   password: string,
   ownerAddress: string,
+  stakerAddress: string,
   fee?: number,
 ) {
   try {
@@ -395,19 +396,21 @@ export async function buildUnstakeTransaction(
     const childNode = node.root.derivePath(node.derivePath);
 
     const blockbook = new Blockbook();
-    const coldutxos = await getUnspentStakes(ownerAddress);
+    const coldutxos = await window.electronAPI.listColdUtxos();
 
     console.log('coldutxos', coldutxos);
     // Filter only cold staking UTXOs
     
     if (!coldutxos.length) throw new Error('No cold staking UTXOs found');
-    console.log('coldutxos', coldutxos);
     const txb = new bitgo.TransactionBuilder(getBitgoNetwork(), fee);
 
     let totalInput = 0;
     for (const utxo of coldutxos) {
-      txb.addInput(utxo.txid, utxo.vout);
-      totalInput += Number(utxo.value);
+      console.log('utxo', utxo);
+      if (utxo['coin-owner'] === ownerAddress) {
+        txb.addInput(utxo.txid, utxo.txidn);
+        totalInput += Number(utxo.amount * 1e8);
+      }
     }
     console.log('totalInput', totalInput);
     if (totalInput <= fee) {
@@ -424,13 +427,13 @@ export async function buildUnstakeTransaction(
       // Build the cold stake script for the input being spent
       const utxo = coldutxos[i];
       const ownerHash = bitgo.address.fromBase58Check(ownerAddress).hash;
+      const stakerHash = bitgo.address.fromBase58Check(stakerAddress).hash;
       console.log('ownerHash', ownerHash);
       // If the staker and owner are different, you should use the actual UTXO script hashes
-      const coldScript = createColdStakingScript(ownerHash, ownerHash); // or use utxo.script
+      const coldScript = createColdStakingScript(stakerHash, ownerHash); // or use utxo.script
 
       // Create the sighash for signing (make sure to use the correct value)
       const keyPair = childNode.keyPair;
-      const value = Number(utxo.value);
 
       const sighash = tx.hashForSignature(i, coldScript, bitgo.Transaction.SIGHASH_ALL);
       const signature = keyPair.sign(sighash).toScriptSignature(bitgo.Transaction.SIGHASH_ALL);
