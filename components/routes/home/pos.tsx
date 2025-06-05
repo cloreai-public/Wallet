@@ -131,7 +131,7 @@ const Pos = () => {
       });
   
       // Build cold staking transaction
-      const hex = await buildStakeTransaction(password, amount, address, "JGpYSh5FEdzQiYJNNKZgbBnG21FvcLM5Yc");
+      const hex = await buildStakeTransaction(password, amount, address, "JDZgBVuFmtgc7VJQ4JpQrQBHq9ox9crJXa");
       // const hex = await buildStakeTransaction(password, amount, address, address);
       console.log('hex ', hex);
       if (!hex) {
@@ -174,7 +174,7 @@ const Pos = () => {
       });
   
       // Build cold staking transaction
-      const hex = await buildUnstakeTransaction(password, address, "JGpYSh5FEdzQiYJNNKZgbBnG21FvcLM5Yc");
+      const hex = await buildUnstakeTransaction(password, address, "JDZgBVuFmtgc7VJQ4JpQrQBHq9ox9crJXa");
       // const hex = await buildUnstakeTransaction(password, address, address);
       console.log('hex ', hex);
       if (!hex) {
