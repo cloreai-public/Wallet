@@ -22,6 +22,7 @@ export type Contact = {
   index: number;
   name: string;
   address: string;
+  network: string;
 };
 
 export type Wallets = Wallet[];

@@ -26,6 +26,14 @@ const History = () => {
   const activeWallet = useCloreState(
     (state: { activeWallet: Wallet }) => state.activeWallet,
   );
+  console.log('activewallet', activeWallet);
+  const network = useCloreState.getState().network;
+
+    const url =
+      network === 'mainnet'
+        ? 'https://blockbook.clore.ai'
+        : 'https://pos-testnet.clore.ai'; // testnet IP
+
   const router = useIonRouter();
 
   return (
@@ -48,7 +56,7 @@ const History = () => {
                     <IonItem
                       key={index}
                       style={{ cursor: 'pointer' }}
-                      href={`https://blockbook.clore.ai/tx/${t.txid}`}
+                      href={`${url}/tx/${t.txid}`}
                       target="_blank"
                     >
                       <IonGrid>

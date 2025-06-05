@@ -43,11 +43,13 @@ const ContactsManager = () => {
     }  
     
     if (name.length > 0) {
-      addContact(name, address);
+      addContact(name, address, currentNetwork);
       setName('');
       setAddress('');
     } else setNameError(t('Contact Name and Address Are Required'));
   };
+
+  console.log('contacts', contacts);
 
   return (
     <IonPage>
@@ -73,7 +75,7 @@ const ContactsManager = () => {
                     </IonRow>
                   </IonGrid>
                 </IonItem>
-                {contacts.map((c: Contact, index: number) => (
+                {...contacts.filter((c: Contact) => c.network === currentNetwork).map((c: Contact, index: number) => (
                   <IonItem key={index} className="px-[5px] pt-[5px]">
                     <IonGrid>
                       <IonRow>

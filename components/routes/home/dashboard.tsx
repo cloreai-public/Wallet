@@ -34,6 +34,9 @@ const Dashboard = () => {
   const updateWallets = useCloreState(
     (state: { updateWallets: any }) => state.updateWallets,
   );
+  const updateActiveWallet = useCloreState(
+    (state: { updateActiveWallet: any }) => state.updateActiveWallet,
+  );
   const activeWallet = useCloreState(
     (state: { activeWallet: any }) => state.activeWallet,
   );
@@ -68,11 +71,14 @@ const Dashboard = () => {
         setLoaded(true); 
   
         const wallets = useCloreState.getState().wallets;
+        console.log('wallets', wallets);
         const idx = wallets.findIndex((w: any) => w.addresses[network] === currentAddress);
+        console.log('idx', idx);
         if (idx !== -1) {
           wallets[idx].balance = data.balance;
           wallets[idx].txs = data.txs;
           updateWallets(wallets);
+          updateActiveWallet(wallets[idx]);
         }
       } else {
         setLoaded(true); 

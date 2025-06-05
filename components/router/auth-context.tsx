@@ -37,13 +37,16 @@ const AuthProvider = ({ children }: Props) => {
   const [authenticated, setAuthenticated] = useState(
     initialValue.authenticated,
   );
-
+  const currentNetwork = useCloreState.getState().network as 'mainnet' | 'testnet';
+  console.log('currentNetwork', currentNetwork);
   const wallets = useCloreState((state: { wallets: any }) => state.wallets);
   const updateWallets = useCloreState((state: any) => state.updateWallets);
   const getWalletData = async () => {
     if (!wallets) return;
+    console.log('wallets', wallets);
     for (let i = 0; i < wallets.length; i++) {
-      const data = await bb.getWalletData(wallets[i].address);
+      console.log('wallets[i].address[currentNetwork]', wallets[i].addresses[currentNetwork]);
+      const data = await bb.getWalletData(wallets[i].addresses[currentNetwork]);
 
       try {
         // if (!data) throw new Error('No address found');

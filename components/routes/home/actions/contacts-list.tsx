@@ -13,6 +13,9 @@ const ContactsList = (props: IProps) => {
   const { t } = useTranslation();
   let { returnContact } = props;
   const [contacts, setContacts] = useState(useCloreState.getState().contacts);
+  const currentNetwork = useCloreState.getState().network;
+
+  console.log('contacts', contacts);
 
   useEffect(() => {
     const unsubscribeContacts = useCloreState.subscribe(
@@ -42,7 +45,7 @@ const ContactsList = (props: IProps) => {
         animated
         mode="ios"
         buttons={[
-          ...contacts.map((c: Contact, index: number) => ({
+          ...contacts.filter((c: Contact) => c.network === currentNetwork).map((c: Contact, index: number) => ({
             text: `${c.name} ${c.address}`,
             handler: () => {
               returnContact(c);

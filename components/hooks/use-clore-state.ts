@@ -162,7 +162,8 @@ export async function addWallet(name: string, password: string) {
       testnet: testnetChild.getPublicKeyBuffer().toString('hex'),
     };
 
-    addContact(`(local) ${name}`, wallet.addresses.mainnet); // optionally also add testnet
+    addContact(`(local) ${name}`, wallet.addresses.mainnet, 'mainnet'); // optionally also add testnet
+    addContact(`(local) ${name}`, wallet.addresses.testnet, 'testnet'); // optionally also add testnet
 
     if (wallet.index === 0) {
       useCloreState.setState({ activeWallet: wallet });
@@ -180,13 +181,15 @@ export async function addWallet(name: string, password: string) {
   }
 }
 
-export async function addContact(name: string, address: string) {
+export async function addContact(name: string, address: string, network: string) {
   try {
     const state = useCloreState.getState();
+    const currentNetwork = state.network;
     const contact: Contact = {
       index: state.contacts.length,
       name,
       address,
+      network: currentNetwork,
     };
     state.contacts.push(contact);
     await secureStorage.setItem(CONST_CURRENT_STORE_NAME, JSON.stringify(state));
